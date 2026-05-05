@@ -372,8 +372,14 @@ export default function FlyWireGallery() {
                         ))}
                       </div>
                     </div>
-                    <div className="xl:w-64 shrink-0">
+                    <div className="xl:w-96 shrink-0">
                       <div className="xl:sticky xl:top-28">
+                        <p className="text-[10px] uppercase tracking-[0.35em] text-white/40 mb-2">
+                          Neuropil Atlas
+                        </p>
+                        <p className="text-sm text-white/60 font-light mb-4 leading-relaxed">
+                          Fly brain regions, hover an image to highlight.
+                        </p>
                         <NeuropilBrain highlighted={hoveredNeuropils} />
                         <div className="mt-3 min-h-[2rem]">
                           {hoveredNeuropils.length > 0 && (

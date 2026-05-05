@@ -58,7 +58,7 @@ export default function NeuropilBrain({ highlighted }: Props) {
     const camera = new THREE.PerspectiveCamera(
       40, container.clientWidth / container.clientHeight, 0.01, 50
     );
-    camera.position.set(0, 0.1, 2.8);
+    camera.position.set(0, 0.1, 2.4);
     camera.lookAt(0, 0, 0);
 
     // ── Lights ────────────────────────────────────────────────────────────
