@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { Fragment, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -213,6 +213,11 @@ function ImageCard({
         <p className="text-[11px] font-light leading-snug text-white/80 line-clamp-2">
           {image.title}
         </p>
+        {image.neuronCount !== undefined && (
+          <p className="text-[10px] text-white/40 mt-1.5 font-light">
+            {image.neuronCount.toLocaleString()} neurons
+          </p>
+        )}
       </div>
     </motion.button>
   );
@@ -346,7 +351,8 @@ export default function FlyWireGallery() {
           {FLYWIRE_GROUPS.map((group) => {
             const images = flyWireImages.filter((img) => img.group === group);
             return (
-              <section key={group} id={slugify(group)} className="scroll-mt-24">
+              <Fragment key={group}>
+              <section id={slugify(group)} className="scroll-mt-24">
                 <div className="mb-8 flex items-start justify-between gap-4">
                   <div>
                     <h2 className="font-display text-2xl md:text-3xl font-light mb-2">
@@ -418,85 +424,86 @@ export default function FlyWireGallery() {
                   </div>
                 )}
               </section>
+              {group === "Infographics & Posters" && (
+                <div>
+                  <div className="mb-8">
+                    <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-3">
+                      Interactive 3D Views
+                    </p>
+                    <h2 className="font-display text-2xl md:text-3xl font-light mb-3">
+                      Explore Living Circuits
+                    </h2>
+                    <p className="text-sm text-white/45 font-light max-w-2xl leading-relaxed">
+                      Each card opens a curated set of neurons in Codex, where you can rotate,
+                      slice, and trace the wiring synapse by synapse in your browser.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {INTERACTIVE_VIEWS.map((view, i) => (
+                      <motion.div
+                        key={view.thumbnail}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
+                        className="rounded-xl overflow-hidden glass hover:bg-white/[0.05] transition-colors duration-400"
+                      >
+                        {view.circuit ? (
+                          <CircuitViewer
+                            circuitId={view.circuit.id}
+                            cells={view.circuit.cells}
+                            height={240}
+                          />
+                        ) : (
+                          <a
+                            href={view.codexUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block group"
+                          >
+                            <div className="aspect-video bg-white/[0.03] overflow-hidden relative">
+                              <img
+                                src={imgSrc(view.thumbnail)}
+                                alt={view.title}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                              />
+                            </div>
+                          </a>
+                        )}
+                        <div className="p-5">
+                          <div className="flex items-baseline justify-between gap-3 mb-2">
+                            <h3 className="font-display text-base font-light leading-snug">
+                              {view.title}
+                            </h3>
+                            {view.circuit && (
+                              <span className="text-[9px] uppercase tracking-[0.25em] text-white/35 shrink-0">
+                                {view.circuit.cells.length} cells
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[12.5px] text-white/55 leading-relaxed mb-3">
+                            {view.description}
+                          </p>
+                          <a
+                            href={view.codexUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-white/80 transition group/link"
+                          >
+                            Open in Codex
+                            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
+                              <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </a>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              </Fragment>
             );
           })}
-        </div>
-
-        {/* ── Interactive 3D Views ──────────────────────────────────── */}
-        <div className="mt-32 max-w-7xl mx-auto">
-          <div className="mb-8">
-            <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-3">
-              Interactive 3D Views
-            </p>
-            <h2 className="font-display text-2xl md:text-3xl font-light mb-3">
-              Explore Living Circuits
-            </h2>
-            <p className="text-sm text-white/45 font-light max-w-2xl leading-relaxed">
-              Each card opens a curated set of neurons in Codex, where you can rotate,
-              slice, and trace the wiring synapse by synapse in your browser.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {INTERACTIVE_VIEWS.map((view, i) => (
-              <motion.div
-                key={view.thumbnail}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
-                className="rounded-xl overflow-hidden glass hover:bg-white/[0.05] transition-colors duration-400"
-              >
-                {view.circuit ? (
-                  <CircuitViewer
-                    circuitId={view.circuit.id}
-                    cells={view.circuit.cells}
-                    height={240}
-                  />
-                ) : (
-                  <a
-                    href={view.codexUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block group"
-                  >
-                    <div className="aspect-video bg-white/[0.03] overflow-hidden relative">
-                      <img
-                        src={imgSrc(view.thumbnail)}
-                        alt={view.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-                      />
-                    </div>
-                  </a>
-                )}
-                <div className="p-5">
-                  <div className="flex items-baseline justify-between gap-3 mb-2">
-                    <h3 className="font-display text-base font-light leading-snug">
-                      {view.title}
-                    </h3>
-                    {view.circuit && (
-                      <span className="text-[9px] uppercase tracking-[0.25em] text-white/35 shrink-0">
-                        {view.circuit.cells.length} cells
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[12.5px] text-white/55 leading-relaxed mb-3">
-                    {view.description}
-                  </p>
-                  <a
-                    href={view.codexUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-white/80 transition group/link"
-                  >
-                    Open in Codex
-                    <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
-                      <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
 
         {/* ── Videos ─────────────────────────────────────────────────── */}

@@ -3,13 +3,16 @@
   title: string;
   caption: string;
   group: string;
-  // Optional per-image credit override. When omitted, callers should fall back
-  // to the default "Render by Tyler Sloan for FlyWire" for every section
-  // except Infographics & Posters (which has no blanket credit).
+  // Optional per-image credit override. When omitted, the default credit for
+  // the section (see SECTION_DEFAULT_CREDITS below) is used.
   credit?: string;
+  // Optional cell count, displayed as a small subtitle on the card.
+  neuronCount?: number;
 }
 
 export const FLYWIRE_GROUPS = [
+  "The Whole Connectome",
+  "Infographics & Posters",
   "The Superclasses",
   "Brain-Wide Connectivity",
   "The Mushroom Body",
@@ -20,35 +23,32 @@ export const FLYWIRE_GROUPS = [
   "Visual Neuron Diversity",
   "Serpentine Neurons",
   "The Lobula Complex",
-  "The Whole Connectome",
   "Featured Renderings",
-  "Infographics & Posters",
 ] as const;
 
-// Sections whose images get the default "Render by Tyler Sloan for FlyWire"
-// credit when no per-image override is set. Anything not in this set (currently
-// just Infographics & Posters) defaults to no credit, and individual entries
-// supply their own.
-export const DEFAULT_TYLER_CREDIT_GROUPS: ReadonlySet<string> = new Set([
-  "The Superclasses",
-  "Brain-Wide Connectivity",
-  "The Mushroom Body",
-  "Sex & Courtship Circuits",
-  "Visual Feature Detectors",
-  "Specialized Cell Types",
-  "Mi1: A Cell Portrait",
-  "Visual Neuron Diversity",
-  "Serpentine Neurons",
-  "The Lobula Complex",
-  "Featured Renderings",
-]);
+// Default credit per section. Per-image `credit` overrides still win; sections
+// not in this map (just Infographics & Posters) require explicit per-image
+// credits and have no default.
+const TYLER = "Render by Tyler Sloan for FlyWire";
+const AMY = "Amy Sterling for FlyWire";
 
-export const DEFAULT_TYLER_CREDIT = "Render by Tyler Sloan for FlyWire";
+export const SECTION_DEFAULT_CREDITS: Record<string, string> = {
+  "The Superclasses": TYLER,
+  "Brain-Wide Connectivity": TYLER,
+  "The Mushroom Body": TYLER,
+  "Sex & Courtship Circuits": TYLER,
+  "Visual Feature Detectors": TYLER,
+  "Specialized Cell Types": TYLER,
+  "Mi1: A Cell Portrait": TYLER,
+  "Visual Neuron Diversity": TYLER,
+  "Serpentine Neurons": TYLER,
+  "The Lobula Complex": TYLER,
+  "Featured Renderings": AMY,
+};
 
 export function creditFor(image: FlyWireImage): string | null {
   if (image.credit) return image.credit;
-  if (DEFAULT_TYLER_CREDIT_GROUPS.has(image.group)) return DEFAULT_TYLER_CREDIT;
-  return null;
+  return SECTION_DEFAULT_CREDITS[image.group] ?? null;
 }
 
 export const FLYWIRE_GROUP_BLURBS: Record<string, string> = {
@@ -75,19 +75,22 @@ export const FLYWIRE_GROUP_BLURBS: Record<string, string> = {
   "The Whole Connectome":
     "Two flagship renders of the entire FlyWire reconstruction, the fifty largest cells that dominate the brain's volume, and every one of the 139,255 neurons painted at full resolution.",
   "Featured Renderings":
-    "A curated set of single cells and special-feature renderings from the FlyWire connectome, the giants, the modulators, and the command neurons whose names appear repeatedly in the literature.",
+    "A curated set of single cells and special feature renderings from the FlyWire connectome. The beautiful giants, the modulators, and the command neurons whose names appear repeatedly when scientists are asked \"what's your favorite cell?\"",
   "Infographics & Posters":
     "Scientific communication pieces created for the FlyWire project, from posters and infographics designed to convey the scale and beauty of the connectome to wide-format renders built for press and public engagement.",
 };
 
 export const flyWireImages: FlyWireImage[] = [
   // ── The Superclasses ─────────────────────────────────────────────────
+  // Counts come from the FlyWire annotation table (Schlegel et al. 2024,
+  // Supplemental file 1, super_class column) and total to 139,244 neurons.
   {
     filename: "sc_optic.png",
     title: "Optic Lobe Neurons",
     caption:
       "The optic lobes are where visual processing begins, home to over half the neurons in the fly brain. This rendering captures their intrinsic cell populations: the columnar neurons, wide-field cells, and local interneurons that transform raw light signals from 1,400 ommatidia into a rich representation of the visual world.",
     group: "The Superclasses",
+    neuronCount: 77539,
   },
   {
     filename: "sc_visual_projection.png",
@@ -95,6 +98,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "Visual projection neurons are the optic lobe's ambassadors to the rest of the brain, each type carrying a specific visual feature, an edge, a color, a looming shape, a direction of motion, from the eye to the circuits that decide what the fly should do about it. FlyWire identified over 200 distinct types, each a different perceptual channel.",
     group: "The Superclasses",
+    neuronCount: 8038,
   },
   {
     filename: "sc_visual_centrifugal.png",
@@ -102,6 +106,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "Visual centrifugal neurons project from the central brain back into the optic lobes, a counterintuitive flow that gives the brain direct control over its own visual input. These feedback pathways allow the fly to effectively tune its eyes based on what it's doing, suppressing irrelevant signals during flight and enhancing detection of specific stimuli during pursuit or courtship.",
     group: "The Superclasses",
+    neuronCount: 524,
   },
 
   {
@@ -110,6 +115,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "Central neurons are intrinsic to the brain itself, forming the dense associative networks that underlie memory, navigation, decision-making, and sensory integration. They constitute the majority of the fly brain by cell count, interconnecting the brain's specialized neuropils into a unified computational architecture.",
     group: "The Superclasses",
+    neuronCount: 32384,
   },
   {
     filename: "sc_ascending.png",
@@ -117,6 +123,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "Ascending neurons originate in the ventral nerve cord, the fly's spinal cord equivalent, and project upward into the brain. They carry sensory signals from the body, legs, and wings, reporting proprioception, touch, and internal state to brain circuits that integrate this with vision and olfaction to coordinate whole-body behavior.",
     group: "The Superclasses",
+    neuronCount: 1750,
   },
   {
     filename: "sc_descending.png",
@@ -124,6 +131,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "Descending neurons are the brain's executive messengers, carrying commands from higher brain regions down into the ventral nerve cord, where they drive the motor circuits that move the wings, legs, and body. There are only a few hundred of them in the fly, yet they coordinate the full repertoire of fly behavior.",
     group: "The Superclasses",
+    neuronCount: 1303,
   },
   {
     filename: "sc_motor.png",
@@ -131,6 +139,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "Motor neurons are the final output of the nervous system, directly innervating muscles throughout the fly's body. Each motor neuron's activity pattern determines exactly which muscles contract and when, translating the brain's computational output into the precise, coordinated movements of flight, walking, feeding, and courtship.",
     group: "The Superclasses",
+    neuronCount: 110,
   },
   {
     filename: "sc_sensory.png",
@@ -138,6 +147,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "Sensory neurons are the brain's interface with the outside world, detecting light, odor, sound, taste, temperature, and touch. Their diversity mirrors the fly's remarkable sensory range: some respond to individual odorant molecules, others to the polarization angle of sunlight, and still others to the microsecond timing of sound waves from a courting male.",
     group: "The Superclasses",
+    neuronCount: 16904,
   },
   {
     filename: "sc_endocrine.png",
@@ -145,6 +155,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "Neuroendocrine neurons release hormones directly into the fly's circulatory system, linking neural activity to body-wide physiological states. They regulate development, reproduction, stress responses, and metabolic rate, a reminder that the brain governs not just behavior but the body's entire internal environment.",
     group: "The Superclasses",
+    neuronCount: 80,
   },
 
   // ── Brain-Wide Connectivity ──────────────────────────────────────────
@@ -631,9 +642,9 @@ export const flyWireImages: FlyWireImage[] = [
   // ── Infographics & Posters ───────────────────────────────────────────
   {
     filename: "inf_poster-2025.png",
-    title: "FlyWire 2025 Official Poster",
+    title: "FlyWire Official Poster",
     caption:
-      "The official FlyWire project poster for 2025. A single image designed to communicate the scale and ambition of mapping an entire animal brain, 139,255 neurons, 50 million synapses, all in a brain the size of a poppy seed.",
+      "The official FlyWire project poster. A single image designed to communicate the scale and ambition of mapping an entire animal brain, 139,255 neurons, 50 million synapses, all in a brain the size of a poppy seed.",
     group: "Infographics & Posters",
     credit:
       "Designed by Amy Sterling, using her own renders alongside renders by Tyler Sloan",

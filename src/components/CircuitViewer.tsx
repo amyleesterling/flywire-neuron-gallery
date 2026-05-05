@@ -15,6 +15,30 @@ interface Props {
 }
 
 const BASE = import.meta.env.BASE_URL + "meshes/circuits/";
+const BRAIN_URL = import.meta.env.BASE_URL + "meshes/neuropils/BRAIN.glb";
+
+// Same FAFB → Three.js transform NeuropilBrain uses, kept here so the runtime
+// normalization of BRAIN.glb (which ships in raw FAFB nm) lines up with the
+// circuit cell meshes (pre-normalized in scripts/extract-circuit-meshes.py).
+const CX = 521684, CY = 237139, CZ = 136601;
+const SCALE = 1 / 332894;
+
+function normalizeFafb(geometry: THREE.BufferGeometry) {
+  const pos = geometry.getAttribute("position") as THREE.BufferAttribute;
+  if (!pos) return;
+  for (let i = 0; i < pos.count; i++) {
+    pos.setXYZ(
+      i,
+      (pos.getX(i) - CX) * SCALE,
+      -(pos.getY(i) - CY) * SCALE,
+      (pos.getZ(i) - CZ) * SCALE,
+    );
+  }
+  pos.needsUpdate = true;
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  geometry.computeBoundingBox();
+}
 
 export default function CircuitViewer({ circuitId, cells, height = 280 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,6 +98,27 @@ export default function CircuitViewer({ circuitId, cells, height = 280 }: Props)
     let destroyed = false;
 
     const loader = new GLTFLoader();
+
+    // ── Brain ghost shell (loaded once, shared across all CircuitViewers) ──
+    loader.load(BRAIN_URL, (gltf) => {
+      if (destroyed) return;
+      gltf.scene.traverse((child) => {
+        if (!(child as THREE.Mesh).isMesh) return;
+        const src = child as THREE.Mesh;
+        const geo = src.geometry.clone();
+        normalizeFafb(geo);
+        const mat = new THREE.MeshBasicMaterial({
+          color: 0xb8c8e0,
+          transparent: true,
+          opacity: 0.07,
+          side: THREE.BackSide,
+          depthWrite: false,
+        });
+        scene.add(new THREE.Mesh(geo, mat));
+        geometries.push(geo);
+        materials.push(mat);
+      });
+    });
 
     // ── Load each cell ────────────────────────────────────────────────────
     for (const cell of cells) {
