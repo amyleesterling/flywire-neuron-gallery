@@ -129,17 +129,6 @@ function Lightbox({
               {linkCopied ? "Link copied" : "Copy link to image"}
             </button>
           </div>
-          <p className="mt-6 text-[11px] text-white/30 leading-relaxed">
-            Visualizations by{" "}
-            <a
-              href="https://flywire.ai"
-              target="_blank"
-              rel="noreferrer"
-              className="text-white/50 hover:text-white/80 transition underline underline-offset-2"
-            >
-              Tyler Sloan and Amy Sterling for FlyWire
-            </a>
-          </p>
         </div>
 
         {/* Close */}
