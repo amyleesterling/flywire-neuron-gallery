@@ -780,13 +780,26 @@ export const flyWireImages: FlyWireImage[] = [
 ];
 
 // ── Interactive 3D Views ────────────────────────────────────────────────
-// Cards that link out to the Codex web app (codex.flywire.ai), where the
-// pre-loaded segments can be rotated, sliced, and explored in neuroglancer.
+// Each view either embeds a Three.js viewer (when `circuit` is set, with the
+// segment meshes pre-extracted into public/meshes/circuits/<id>/) or falls
+// back to a static thumbnail link-out to Codex.
+
+export interface CircuitCellRef {
+  segId: string;
+  color: string;
+}
+
 export interface InteractiveView {
   thumbnail: string;
   title: string;
   description: string;
   codexUrl: string;
+  // When present, the gallery renders an inline Three.js viewer instead of a
+  // static thumbnail. Cells live in /public/meshes/circuits/<id>/<segId>.glb.
+  circuit?: {
+    id: string;
+    cells: CircuitCellRef[];
+  };
 }
 
 export const INTERACTIVE_VIEWS: InteractiveView[] = [
@@ -797,6 +810,15 @@ export const INTERACTIVE_VIEWS: InteractiveView[] = [
       "A four-neuron pathway from a thermosensory cell on the right side of the head to the DNa01 descending neuron on the left, the circuit that turns noxious heat into a turn-away motor command.",
     codexUrl:
       "https://codex.flywire.ai/app/search?filter_string=720575940611720362,720575940627787609,720575940626433881,720575940631347011",
+    circuit: {
+      id: "thermo-pathway",
+      cells: [
+        { segId: "720575940611720362", color: "#ff7ee0" },
+        { segId: "720575940627787609", color: "#7ee0ff" },
+        { segId: "720575940626433881", color: "#ffd97e" },
+        { segId: "720575940631347011", color: "#9af5d8" },
+      ],
+    },
   },
   {
     thumbnail: "photo_pathway.png",
@@ -805,6 +827,17 @@ export const INTERACTIVE_VIEWS: InteractiveView[] = [
       "An example pathway from an R1-6 photoreceptor through the optic lobe to a DNa01 descending neuron, one of the chains that converts light at the retina into a turning command for the legs.",
     codexUrl:
       "https://codex.flywire.ai/app/search?filter_string=720575940614783027,720575940619833723,720575940621627062,720575940629904940,720575940637416078,720575940623019544",
+    circuit: {
+      id: "photo-pathway",
+      cells: [
+        { segId: "720575940614783027", color: "#ff7ee0" },
+        { segId: "720575940619833723", color: "#7ee0ff" },
+        { segId: "720575940621627062", color: "#ffd97e" },
+        { segId: "720575940629904940", color: "#9af5d8" },
+        { segId: "720575940637416078", color: "#b78bff" },
+        { segId: "720575940623019544", color: "#ffb87a" },
+      ],
+    },
   },
   {
     thumbnail: "orn_to_dm1.png",

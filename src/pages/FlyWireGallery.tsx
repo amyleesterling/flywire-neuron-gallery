@@ -10,6 +10,7 @@ import {
   type FlyWireImage,
 } from "../data/flywire";
 import NeuropilBrain from "../components/NeuropilBrain";
+import CircuitViewer from "../components/CircuitViewer";
 import { FILENAME_TO_NEUROPILS, NEUROPILS } from "../data/neuropilMap";
 
 const BASE = import.meta.env.BASE_URL;
@@ -437,41 +438,63 @@ export default function FlyWireGallery() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {INTERACTIVE_VIEWS.map((view, i) => (
-              <motion.a
+              <motion.div
                 key={view.thumbnail}
-                href={view.codexUrl}
-                target="_blank"
-                rel="noreferrer"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
-                className="group block rounded-xl overflow-hidden glass hover:bg-white/[0.07] hover:ring-1 hover:ring-white/15 hover:-translate-y-0.5 transition-all duration-400"
+                className="rounded-xl overflow-hidden glass hover:bg-white/[0.05] transition-colors duration-400"
               >
-                <div className="aspect-video bg-white/[0.03] overflow-hidden relative">
-                  <img
-                    src={imgSrc(view.thumbnail)}
-                    alt={view.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                {view.circuit ? (
+                  <CircuitViewer
+                    circuitId={view.circuit.id}
+                    cells={view.circuit.cells}
+                    height={240}
                   />
-                </div>
+                ) : (
+                  <a
+                    href={view.codexUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block group"
+                  >
+                    <div className="aspect-video bg-white/[0.03] overflow-hidden relative">
+                      <img
+                        src={imgSrc(view.thumbnail)}
+                        alt={view.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                      />
+                    </div>
+                  </a>
+                )}
                 <div className="p-5">
                   <div className="flex items-baseline justify-between gap-3 mb-2">
                     <h3 className="font-display text-base font-light leading-snug">
                       {view.title}
                     </h3>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0 text-white/35 group-hover:text-white/80 group-hover:translate-x-0.5 transition">
-                      <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    {view.circuit && (
+                      <span className="text-[9px] uppercase tracking-[0.25em] text-white/35 shrink-0">
+                        {view.circuit.cells.length} cells
+                      </span>
+                    )}
                   </div>
-                  <p className="text-[12.5px] text-white/55 leading-relaxed">
+                  <p className="text-[12.5px] text-white/55 leading-relaxed mb-3">
                     {view.description}
                   </p>
-                  <p className="mt-3 text-[10px] uppercase tracking-[0.3em] text-white/30">
+                  <a
+                    href={view.codexUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-white/80 transition group/link"
+                  >
                     Open in Codex
-                  </p>
+                    <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
+                      <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </a>
                 </div>
-              </motion.a>
+              </motion.div>
             ))}
           </div>
         </div>

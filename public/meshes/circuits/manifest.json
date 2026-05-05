@@ -1,0 +1,84 @@
+[
+  {
+    "id": "thermo-pathway",
+    "label": "Thermosensory to DN",
+    "cells": [
+      {
+        "segId": "720575940611720362",
+        "color": "#ff7ee0",
+        "rawFaces": 314010,
+        "decimatedFaces": 30000,
+        "fileKB": 538.7
+      },
+      {
+        "segId": "720575940627787609",
+        "color": "#7ee0ff",
+        "rawFaces": 1915188,
+        "decimatedFaces": 30000,
+        "fileKB": 574.7
+      },
+      {
+        "segId": "720575940626433881",
+        "color": "#ffd97e",
+        "rawFaces": 1387114,
+        "decimatedFaces": 29998,
+        "fileKB": 571.9
+      },
+      {
+        "segId": "720575940631347011",
+        "color": "#9af5d8",
+        "rawFaces": 1108934,
+        "decimatedFaces": 30000,
+        "fileKB": 556.3
+      }
+    ]
+  },
+  {
+    "id": "photo-pathway",
+    "label": "Photoreceptor to DN",
+    "cells": [
+      {
+        "segId": "720575940614783027",
+        "color": "#ff7ee0",
+        "rawFaces": 89488,
+        "decimatedFaces": 30000,
+        "fileKB": 524.4
+      },
+      {
+        "segId": "720575940619833723",
+        "color": "#7ee0ff",
+        "rawFaces": 297538,
+        "decimatedFaces": 30000,
+        "fileKB": 525.8
+      },
+      {
+        "segId": "720575940621627062",
+        "color": "#ffd97e",
+        "rawFaces": 134690,
+        "decimatedFaces": 30000,
+        "fileKB": 532.7
+      },
+      {
+        "segId": "720575940629904940",
+        "color": "#9af5d8",
+        "rawFaces": 216692,
+        "decimatedFaces": 30000,
+        "fileKB": 540.3
+      },
+      {
+        "segId": "720575940637416078",
+        "color": "#b78bff",
+        "rawFaces": 1356584,
+        "decimatedFaces": 30000,
+        "fileKB": 563.3
+      },
+      {
+        "segId": "720575940623019544",
+        "color": "#ffb87a",
+        "rawFaces": 2926106,
+        "decimatedFaces": 30000,
+        "fileKB": 590.1
+      }
+    ]
+  }
+]
