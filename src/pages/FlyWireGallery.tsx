@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   flyWireImages,
   FLYWIRE_GROUPS,
@@ -16,6 +16,39 @@ function imgSrc(filename: string) {
   return `${BASE}flywire/${encodeURIComponent(filename)}`;
 }
 
+// ── Slug maps for shareable URLs ─────────────────────────────────────────
+// Each image gets a stable slug derived from its title (with collision suffixing).
+// URLs look like /?image=mushroom-body-output-neurons-central — back/forward
+// buttons close and reopen the lightbox naturally.
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+const SLUG_BY_FILENAME = new Map<string, string>();
+const IMAGE_BY_SLUG = new Map<string, FlyWireImage>();
+{
+  const used = new Set<string>();
+  for (const img of flyWireImages) {
+    let slug = slugify(img.title) || "image";
+    if (used.has(slug)) {
+      let n = 2;
+      while (used.has(`${slug}-${n}`)) n++;
+      slug = `${slug}-${n}`;
+    }
+    used.add(slug);
+    SLUG_BY_FILENAME.set(img.filename, slug);
+    IMAGE_BY_SLUG.set(slug, img);
+  }
+}
+
 // ── Lightbox ─────────────────────────────────────────────────────────────
 
 function Lightbox({
@@ -29,6 +62,8 @@ function Lightbox({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const [linkCopied, setLinkCopied] = useState(false);
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -38,6 +73,12 @@ function Lightbox({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, onPrev, onNext]);
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
 
   return (
     <motion.div
@@ -78,6 +119,15 @@ function Lightbox({
               {image.title}
             </h2>
             <p className="text-sm text-white/65 leading-relaxed">{image.caption}</p>
+            <button
+              onClick={copyLink}
+              className="mt-5 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/45 hover:text-white/80 transition group"
+            >
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" className="opacity-70 group-hover:opacity-100 transition">
+                <path d="M5.5 8.5l3-3M6 4l1.5-1.5a2.121 2.121 0 013 3L9 7M8 10l-1.5 1.5a2.121 2.121 0 01-3-3L5 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {linkCopied ? "Link copied" : "Copy link to image"}
+            </button>
           </div>
           <p className="mt-6 text-[11px] text-white/30 leading-relaxed">
             Visualizations by{" "}
@@ -174,7 +224,10 @@ function ImageCard({
 // ── Page ──────────────────────────────────────────────────────────────────
 
 export default function FlyWireGallery() {
-  const [selected, setSelected] = useState<FlyWireImage | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const imageParam = searchParams.get("image");
+  const selected = imageParam ? IMAGE_BY_SLUG.get(imageParam) ?? null : null;
+
   const [copied, setCopied] = useState(false);
   const [hoveredNeuropils, setHoveredNeuropils] = useState<string[]>([]);
 
@@ -182,14 +235,26 @@ export default function FlyWireGallery() {
     ? flyWireImages.findIndex((img) => img.filename === selected.filename)
     : -1;
 
+  const openImage = useCallback(
+    (img: FlyWireImage) => {
+      const slug = SLUG_BY_FILENAME.get(img.filename);
+      if (slug) setSearchParams({ image: slug });
+    },
+    [setSearchParams],
+  );
+
+  const closeImage = useCallback(() => {
+    setSearchParams({});
+  }, [setSearchParams]);
+
   const openNext = useCallback(() => {
     if (selectedIndex < flyWireImages.length - 1)
-      setSelected(flyWireImages[selectedIndex + 1]);
-  }, [selectedIndex]);
+      openImage(flyWireImages[selectedIndex + 1]);
+  }, [selectedIndex, openImage]);
 
   const openPrev = useCallback(() => {
-    if (selectedIndex > 0) setSelected(flyWireImages[selectedIndex - 1]);
-  }, [selectedIndex]);
+    if (selectedIndex > 0) openImage(flyWireImages[selectedIndex - 1]);
+  }, [selectedIndex, openImage]);
 
   return (
     <>
@@ -284,7 +349,7 @@ export default function FlyWireGallery() {
           {FLYWIRE_GROUPS.map((group) => {
             const images = flyWireImages.filter((img) => img.group === group);
             return (
-              <section key={group}>
+              <section key={group} id={slugify(group)} className="scroll-mt-24">
                 <div className="mb-8 flex items-start justify-between gap-4">
                   <div>
                     <h2 className="font-display text-2xl md:text-3xl font-light mb-2">
@@ -311,7 +376,7 @@ export default function FlyWireGallery() {
                             key={img.filename}
                             image={img}
                             index={i}
-                            onClick={() => setSelected(img)}
+                            onClick={() => openImage(img)}
                             onHover={(fn) => setHoveredNeuropils(FILENAME_TO_NEUROPILS[fn] ?? [])}
                             onHoverEnd={() => setHoveredNeuropils([])}
                           />
@@ -343,7 +408,7 @@ export default function FlyWireGallery() {
                         key={img.filename}
                         image={img}
                         index={i}
-                        onClick={() => setSelected(img)}
+                        onClick={() => openImage(img)}
                         objectFit={group === "Infographics & Posters" ? "contain" : "cover"}
                       />
                     ))}
@@ -531,7 +596,7 @@ export default function FlyWireGallery() {
         {selected && (
           <Lightbox
             image={selected}
-            onClose={() => setSelected(null)}
+            onClose={closeImage}
             onPrev={openPrev}
             onNext={openNext}
           />
