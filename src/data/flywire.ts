@@ -3,6 +3,10 @@
   title: string;
   caption: string;
   group: string;
+  // Optional per-image credit override. When omitted, callers should fall back
+  // to the default "Render by Tyler Sloan for FlyWire" for every section
+  // except Infographics & Posters (which has no blanket credit).
+  credit?: string;
 }
 
 export const FLYWIRE_GROUPS = [
@@ -17,8 +21,35 @@ export const FLYWIRE_GROUPS = [
   "Serpentine Neurons",
   "The Lobula Complex",
   "The Whole Connectome",
+  "Featured Renderings",
   "Infographics & Posters",
 ] as const;
+
+// Sections whose images get the default "Render by Tyler Sloan for FlyWire"
+// credit when no per-image override is set. Anything not in this set (currently
+// just Infographics & Posters) defaults to no credit, and individual entries
+// supply their own.
+export const DEFAULT_TYLER_CREDIT_GROUPS: ReadonlySet<string> = new Set([
+  "The Superclasses",
+  "Brain-Wide Connectivity",
+  "The Mushroom Body",
+  "Sex & Courtship Circuits",
+  "Visual Feature Detectors",
+  "Specialized Cell Types",
+  "Mi1: A Cell Portrait",
+  "Visual Neuron Diversity",
+  "Serpentine Neurons",
+  "The Lobula Complex",
+  "Featured Renderings",
+]);
+
+export const DEFAULT_TYLER_CREDIT = "Render by Tyler Sloan for FlyWire";
+
+export function creditFor(image: FlyWireImage): string | null {
+  if (image.credit) return image.credit;
+  if (DEFAULT_TYLER_CREDIT_GROUPS.has(image.group)) return DEFAULT_TYLER_CREDIT;
+  return null;
+}
 
 export const FLYWIRE_GROUP_BLURBS: Record<string, string> = {
   "The Superclasses":
@@ -42,7 +73,9 @@ export const FLYWIRE_GROUP_BLURBS: Record<string, string> = {
   "The Lobula Complex":
     "The Lobula, Lobula Plate, and their intrinsic neurons, where transmedullary signals are transformed into higher-order visual features including direction-selective motion responses.",
   "The Whole Connectome":
-    "Sweeping views of the complete fly brain: the structural crossings that preserve visual maps, and the 50 largest neurons spanning nearly the entire brain.",
+    "Two flagship renders of the entire FlyWire reconstruction, the fifty largest cells that dominate the brain's volume, and every one of the 139,255 neurons painted at full resolution.",
+  "Featured Renderings":
+    "A curated set of single cells and special-feature renderings from the FlyWire connectome, the giants, the modulators, and the command neurons whose names appear repeatedly in the literature.",
   "Infographics & Posters":
     "Scientific communication pieces created for the FlyWire project, from posters and infographics designed to convey the scale and beauty of the connectome to wide-format renders built for press and public engagement.",
 };
@@ -600,8 +633,10 @@ export const flyWireImages: FlyWireImage[] = [
     filename: "inf_poster-2025.png",
     title: "FlyWire 2025 Official Poster",
     caption:
-      "The official FlyWire project poster for 2025, created by Tyler Sloan. A single image designed to communicate the scale and ambition of mapping an entire animal brain,139,255 neurons, 50 million synapses, all in a brain the size of a poppy seed.",
+      "The official FlyWire project poster for 2025. A single image designed to communicate the scale and ambition of mapping an entire animal brain, 139,255 neurons, 50 million synapses, all in a brain the size of a poppy seed.",
     group: "Infographics & Posters",
+    credit:
+      "Designed by Amy Sterling, using her own renders alongside renders by Tyler Sloan",
   },
   {
     filename: "inf_poster-wide.png",
@@ -609,6 +644,8 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "A widescreen format poster showcasing the complete FlyWire connectome. Designed for large-format display and projection, this piece captures the visual grandeur of the fly brain mapped in full, a scientific achievement rendered as a work of art.",
     group: "Infographics & Posters",
+    credit:
+      "Designed by Amy Sterling, using her own renders alongside renders by Tyler Sloan",
   },
   {
     filename: "inf_fly-neuron.png",
@@ -616,6 +653,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "An illustrated guide to fly neuron anatomy and the FlyWire project, created for broad scientific communication. The infographic brings together key facts about the connectome, scale, method, and significance, in a format accessible to scientists and general audiences alike.",
     group: "Infographics & Posters",
+    credit: "Created by Amy Sterling",
   },
   {
     filename: "inf_data-lens.jpg",
@@ -623,6 +661,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "A print-format visualization exploring the FlyWire dataset through a scientific lens. Designed at 8×10 for publication and display, it contextualizes the connectome within the broader landscape of neuroscience data, positioning the fly brain map as a reference point for understanding neural circuit complexity.",
     group: "Infographics & Posters",
+    credit: "Created by Amy Sterling",
   },
   {
     filename: "inf_fly-scifi.jpg",
@@ -630,6 +669,7 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "A stylized interpretation of the fly connectome using a science-fiction visual language, dramatic lighting, deep space backgrounds, and the fly brain rendered as a glowing cosmic object. A reminder that real biological structures can be stranger and more beautiful than anything invented.",
     group: "Infographics & Posters",
+    credit: "Created by Amy Sterling",
   },
   {
     filename: "inf_perception-concepts.png",
@@ -637,15 +677,156 @@ export const flyWireImages: FlyWireImage[] = [
     caption:
       "An illustrative breakdown of how the fly visual system encodes perception, from raw photoreceptor signals to the high-level feature detection performed by lobula columnar and visual projection neurons. A conceptual map of how a brain turns light into meaning.",
     group: "Infographics & Posters",
+    credit:
+      "Created by Perception Studios using renders by Tyler Sloan. Produced by Amy Sterling",
   },
 
   // ── The Whole Connectome ─────────────────────────────────────────────
   {
-    filename: "50_largest_4k.png",
-    title: "The 50 Largest Neurons in the Fly Brain",
+    filename: "50_largest_neurons.png",
+    title: "Fifty Giants of the Fly Brain",
     caption:
-      "A portrait of the connectome's giants, the 50 largest neurons in the adult fruit fly brain, rendered at 4K. These massive cells span enormous distances relative to the brain's size, often integrating signals from multiple sensory and motor systems. Many are central complex interneurons or output neurons projecting into the nerve cord, poised to orchestrate whole-body behavior.",
+      "The fifty largest cells in the FlyWire reconstruction, each rendered in its own color across the whole adult Drosophila brain. Most are wide-field tangential neurons of the optic lobes and central complex, descending neurons that carry motor commands from brain to nerve cord, and outliers like CT1, a single cell that tiles every column of the medulla and lobula and forms over 140,000 synapses. Out of 139,255 neurons, this handful occupies a disproportionate share of the brain's volume, a reminder that connectomes are not built from average cells.",
     group: "The Whole Connectome",
+    credit: "Visualizations by Tyler Sloan and Amy Sterling for FlyWire",
+  },
+  {
+    filename: "all_neurons.png",
+    title: "Every Neuron in the Fly Brain",
+    caption:
+      "All 139,255 neurons of the adult Drosophila melanogaster brain rendered together at full resolution, each cell painted its own color. The 54.5 million synapses linking them are the first complete wiring diagram of a brain that can walk, fly, court, and learn. Reconstructed from electron microscopy by AI segmentation and seven years of human proofreading across more than 300 contributors, this single frame is the FlyWire connectome in its entirety.",
+    group: "The Whole Connectome",
+    credit: "Visualizations by Tyler Sloan and Amy Sterling for FlyWire",
+  },
+
+  // ── Featured Renderings ──────────────────────────────────────────────
+  {
+    filename: "flywire_sterling_gallery_apl.png",
+    title: "APL: One Cell, the Whole Lobe",
+    caption:
+      "The Anterior Paired Lateral neuron is a single GABAergic giant, one per hemisphere, that infiltrates every lobe and the calyx of the mushroom body. Through Kenyon Cell feedback inhibition, APL enforces the sparse odor coding that makes olfactory memory possible. With a combined length of 13 cm across both cells, this is the longest neuron in the fly brain, 43 times the length of the fly itself.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_bolt.png",
+    title: "Bolt: A Dedicated Circuit for Going Fast",
+    caption:
+      "Bolt Protocerebral Neurons sit in the higher brain and command one job, fast straight forward walking. Identified by Salil Bidaye's lab, BPN is recruited during long, high-velocity walking bouts and works in parallel to a separate pathway, P9, that handles object-directed turning. Two brain pathways, two walking programs.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_moonwalker.png",
+    title: "Moonwalker: The Reverse Gear of the Fly Brain",
+    caption:
+      "MDN, the Moonwalker Descending Neuron, is a small bilateral pair that drops from the brain into the ventral nerve cord and triggers backward walking. When a fly hits an impassable barrier or sees a looming threat, MDN activity flips the locomotor program, simultaneously activating backward and inhibiting forward gait. Identified by Bidaye and Dickson in 2014, it is the canonical command neuron for retreat.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_keystone.png",
+    title: "Keystone: A Pair That Reads the Whole Nose",
+    caption:
+      "Keystone, formally il3LN6, is a pair of broad antennal lobe local neurons whose somata sit far from the lobe in the lateral subesophageal zone, with arborizations that touch nearly every olfactory glomerulus. By integrating across the entire glomerular array, Keystone shapes how odor representations are normalized before they reach the rest of the brain.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_lpsp.png",
+    title: "LPsP: Pillars in the Lateral Protocerebrum",
+    caption:
+      "LPsP cells project through the lateral protocerebrum, a higher-order region where visual, auditory, and olfactory streams converge before reaching descending pathways. Identified during FlyWire annotation by Claire McKellar and Dustin Garner from the Sung Soo Kim lab, these neurons sit in circuits that translate sensory landmarks into navigational signals.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_dm4.png",
+    title: "DM4: A Glomerulus Tuned to the Smell of Fruit",
+    caption:
+      "DM4 is one of the broadly tuned olfactory glomeruli of the antennal lobe, receiving input from Or59b sensory neurons that respond to ethyl acetate and related esters, the volatile signature of ripening fruit. Silencing DM4 abolishes attraction to these odors. The image shows the receptor neurons, projection neurons, and local interneurons that collectively define the glomerular unit.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_avlp538.png",
+    title: "AVLP538: A New Cell Type from a Complete Map",
+    caption:
+      "AVLP538 is one of more than four thousand cell types first defined in the FlyWire connectome, named for the anterior ventrolateral protocerebrum it occupies. The AVLP is a multisensory hub where auditory, visual, and mechanosensory streams meet en route to descending neurons. Cell types like this one, invisible to genetics alone, only become tractable once every neuron in the brain is reconstructed and compared.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_dpm.png",
+    title: "DPM: Memory's Quiet Broadcaster",
+    caption:
+      "DPM, the Dorsal Paired Medial neuron, is a single large cell per hemisphere that infiltrates every lobe of the mushroom body. By co-releasing serotonin and the amnesiac peptide back onto Kenyon Cells, DPM consolidates labile short-term odor memories into stable, anesthesia-resistant long-term traces. Loss of amnesiac, or silencing of DPM, leaves the fly able to learn but unable to remember.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_ct1_1.png",
+    title: "CT1: A Single Cell That Touches Every Visual Column",
+    caption:
+      "CT1 is one of the largest cells in the fly brain by reach. A single CT1 per optic lobe sends an independent neurite into every column of the medulla and lobula, contacting every T4 and T5 motion-detection cell. Each terminal acts as its own compartmentalized processor, so one giant neuron simultaneously contributes to ON and OFF motion computations across the entire visual field.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "flywire_sterling_gallery_oa_al2i1.png",
+    title: "OA-AL2i1: An Octopamine Line into the Protocerebrum",
+    caption:
+      "OA-AL2i1 belongs to the AL2 cluster of octopaminergic neurons, the fly's analogue of noradrenergic modulation. Its soma sits ventromedial to the antennal lobe, sending a single neurite along the esophageal foramen and out into the posterior, lateral, and ventromedial protocerebra. Octopamine release from cells like this one shifts the brain into states of arousal, flight, and reward.",
+    group: "Featured Renderings",
+  },
+  {
+    filename: "holoflybrain-sterling.png",
+    title: "The Whole Brain, Holographic",
+    caption:
+      "A volumetric, depth-aware render of the complete FlyWire connectome, the same 139,255 neurons seen elsewhere in the gallery, here treated like a hologram floating in space. The aesthetic foregrounds the brain as a three-dimensional object rather than a circuit diagram.",
+    group: "Featured Renderings",
+  },
+];
+
+// ── Interactive 3D Views ────────────────────────────────────────────────
+// Cards that link out to the Codex web app (codex.flywire.ai), where the
+// pre-loaded segments can be rotated, sliced, and explored in neuroglancer.
+export interface InteractiveView {
+  thumbnail: string;
+  title: string;
+  description: string;
+  codexUrl: string;
+}
+
+export const INTERACTIVE_VIEWS: InteractiveView[] = [
+  {
+    thumbnail: "thermo_pathway.png",
+    title: "Thermosensory to DN",
+    description:
+      "A four-neuron pathway from a thermosensory cell on the right side of the head to the DNa01 descending neuron on the left, the circuit that turns noxious heat into a turn-away motor command.",
+    codexUrl:
+      "https://codex.flywire.ai/app/search?filter_string=720575940611720362,720575940627787609,720575940626433881,720575940631347011",
+  },
+  {
+    thumbnail: "photo_pathway.png",
+    title: "Photoreceptor to DN",
+    description:
+      "An example pathway from an R1-6 photoreceptor through the optic lobe to a DNa01 descending neuron, one of the chains that converts light at the retina into a turning command for the legs.",
+    codexUrl:
+      "https://codex.flywire.ai/app/search?filter_string=720575940614783027,720575940619833723,720575940621627062,720575940629904940,720575940637416078,720575940623019544",
+  },
+  {
+    thumbnail: "orn_to_dm1.png",
+    title: "ORN and DM1 Neurons",
+    description:
+      "Every olfactory receptor neuron innervating the DM1 glomerulus, plus the two projection neurons that carry DM1's signal forward to the mushroom body and the lateral horn.",
+    codexUrl: "https://codex.flywire.ai/app/search?filter_string=ORN_DM1,DM1_lPN",
+  },
+  {
+    thumbnail: "ring_neurons.png",
+    title: "Ring Neurons",
+    description:
+      "Ring neurons of the central complex, arranged in a ring around the ellipsoid body, integrating sensory landmarks with the fly's internal heading estimate to drive navigation.",
+    codexUrl:
+      "https://codex.flywire.ai/app/search?filter_string=label+%3D%3D+ExR1",
+  },
+  {
+    thumbnail: "ocellar.png",
+    title: "Ocellar Neurons",
+    description:
+      "Every neuron with arbors in the ocellar ganglion, the small dorsal input from the three simple eyes (ocelli) that detect ambient light level and help stabilize flight.",
+    codexUrl: "https://codex.flywire.ai/app/search?filter_string=ocellar",
   },
 ];
 
