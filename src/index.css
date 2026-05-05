@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", "Inter", serif;
+
+  --color-ink-950: #04060c;
+  --color-ink-900: #070b16;
+  --color-ink-800: #0c1322;
+  --color-ink-700: #131c2f;
+  --color-ink-600: #1c2742;
+
+  --color-glow-cyan: #7ee0ff;
+  --color-glow-magenta: #ff7ee0;
+  --color-glow-violet: #b78bff;
+  --color-glow-warm: #ffd9a8;
+}
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    background: var(--color-ink-950);
+    color: rgb(245 245 250);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--color-glow-cyan);
+    color: var(--color-ink-950);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-feature-settings: "ss01", "ss02";
+    letter-spacing: -0.02em;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 40px -10px var(--color-glow-cyan), 0 0 80px -30px var(--color-glow-cyan);
+  }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+@keyframes drift-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Neuron loader — the dendrites sketch themselves in over and over while
+   the swarm streams. Each branch is dasharray-revealed; the basal arbor
+   is offset half a cycle so the apical and basal trees don't pulse in
+   lockstep (a real neuron looks more alive when its arbors breathe out
+   of phase). */
+@keyframes neuron-loader-draw {
+  0%   { stroke-dashoffset: 200; opacity: 0.2; }
+  35%  { stroke-dashoffset: 0;   opacity: 1; }
+  75%  { stroke-dashoffset: 0;   opacity: 1; }
+  100% { stroke-dashoffset: 200; opacity: 0.2; }
+}
+@keyframes neuron-loader-pulse {
+  0%, 100% { transform: scale(1);     filter: drop-shadow(0 0 6px currentColor); }
+  50%      { transform: scale(1.18);  filter: drop-shadow(0 0 16px currentColor); }
+}
+@keyframes neuron-loader-bar-sweep {
+  0%   { left: -33%; }
+  100% { left: 100%; }
+}
+
+.neuron-loader-strokes path {
+  stroke-dasharray: 200;
+  animation: neuron-loader-draw 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.neuron-loader-strokes-basal path {
+  animation-delay: 1.3s;
+}
+.neuron-loader-soma {
+  transform-origin: 100px 184px;
+  transform-box: fill-box;
+  animation: neuron-loader-pulse 1.6s ease-in-out infinite;
+}
+.neuron-loader-bar-indeterminate {
+  animation: neuron-loader-bar-sweep 1.4s ease-in-out infinite;
+}
+
+/* Presentation mode: full-screen 3D, chrome out of the way. Toggled
+   from /explore via the present icon (or "p" key). */
+body.present-mode header { display: none !important; }
