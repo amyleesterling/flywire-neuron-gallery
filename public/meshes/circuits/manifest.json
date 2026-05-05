@@ -6,30 +6,26 @@
       {
         "segId": "720575940611720362",
         "color": "#ff7ee0",
-        "rawFaces": 314010,
-        "decimatedFaces": 30000,
-        "fileKB": 538.7
+        "fileKB": 538.7,
+        "cached": true
       },
       {
         "segId": "720575940627787609",
         "color": "#7ee0ff",
-        "rawFaces": 1915188,
-        "decimatedFaces": 30000,
-        "fileKB": 574.7
+        "fileKB": 574.7,
+        "cached": true
       },
       {
         "segId": "720575940626433881",
         "color": "#ffd97e",
-        "rawFaces": 1387114,
-        "decimatedFaces": 29998,
-        "fileKB": 571.9
+        "fileKB": 571.9,
+        "cached": true
       },
       {
         "segId": "720575940631347011",
         "color": "#9af5d8",
-        "rawFaces": 1108934,
-        "decimatedFaces": 30000,
-        "fileKB": 556.3
+        "fileKB": 556.3,
+        "cached": true
       }
     ]
   },
@@ -40,44 +36,568 @@
       {
         "segId": "720575940614783027",
         "color": "#ff7ee0",
-        "rawFaces": 89488,
-        "decimatedFaces": 30000,
-        "fileKB": 524.4
+        "fileKB": 524.4,
+        "cached": true
       },
       {
         "segId": "720575940619833723",
         "color": "#7ee0ff",
-        "rawFaces": 297538,
-        "decimatedFaces": 30000,
-        "fileKB": 525.8
+        "fileKB": 525.8,
+        "cached": true
       },
       {
         "segId": "720575940621627062",
         "color": "#ffd97e",
-        "rawFaces": 134690,
-        "decimatedFaces": 30000,
-        "fileKB": 532.7
+        "fileKB": 532.7,
+        "cached": true
       },
       {
         "segId": "720575940629904940",
         "color": "#9af5d8",
-        "rawFaces": 216692,
-        "decimatedFaces": 30000,
-        "fileKB": 540.3
+        "fileKB": 540.3,
+        "cached": true
       },
       {
         "segId": "720575940637416078",
         "color": "#b78bff",
-        "rawFaces": 1356584,
-        "decimatedFaces": 30000,
-        "fileKB": 563.3
+        "fileKB": 563.3,
+        "cached": true
       },
       {
         "segId": "720575940623019544",
         "color": "#ffb87a",
-        "rawFaces": 2926106,
+        "fileKB": 590.1,
+        "cached": true
+      }
+    ]
+  },
+  {
+    "id": "ring-neurons",
+    "label": "Ring Neurons (ExR1)",
+    "cells": [
+      {
+        "segId": "720575940612869269",
+        "color": "#ff7ee0",
+        "rawFaces": 2151978,
         "decimatedFaces": 30000,
-        "fileKB": 590.1
+        "fileKB": 573.9
+      },
+      {
+        "segId": "720575940639278399",
+        "color": "#7ee0ff",
+        "rawFaces": 3109942,
+        "decimatedFaces": 30000,
+        "fileKB": 586.2
+      },
+      {
+        "segId": "720575940615101747",
+        "color": "#ffd97e",
+        "rawFaces": 3220180,
+        "decimatedFaces": 29999,
+        "fileKB": 589.8
+      },
+      {
+        "segId": "720575940640749939",
+        "color": "#9af5d8",
+        "rawFaces": 3197262,
+        "decimatedFaces": 29999,
+        "fileKB": 585.5
+      }
+    ]
+  },
+  {
+    "id": "orn-dm1",
+    "label": "ORN and DM1 Neurons",
+    "cells": [
+      {
+        "segId": "720575940619419757",
+        "color": "#ff7ee0",
+        "rawFaces": 255988,
+        "decimatedFaces": 10000,
+        "fileKB": 180.6
+      },
+      {
+        "segId": "720575940629918762",
+        "color": "#7ee0ff",
+        "rawFaces": 269054,
+        "decimatedFaces": 9999,
+        "fileKB": 180.1
+      },
+      {
+        "segId": "720575940629728732",
+        "color": "#ffd97e",
+        "rawFaces": 234794,
+        "decimatedFaces": 10000,
+        "fileKB": 179.5
+      },
+      {
+        "segId": "720575940620028788",
+        "color": "#9af5d8",
+        "rawFaces": 266218,
+        "decimatedFaces": 10000,
+        "fileKB": 180.3
+      },
+      {
+        "segId": "720575940632224031",
+        "color": "#b78bff",
+        "rawFaces": 261900,
+        "decimatedFaces": 9999,
+        "fileKB": 180.7
+      },
+      {
+        "segId": "720575940628800277",
+        "color": "#ffb87a",
+        "rawFaces": 279892,
+        "decimatedFaces": 10000,
+        "fileKB": 182.1
+      },
+      {
+        "segId": "720575940631217782",
+        "color": "#aedeff",
+        "rawFaces": 264388,
+        "decimatedFaces": 9999,
+        "fileKB": 180.9
+      },
+      {
+        "segId": "720575940635146926",
+        "color": "#c2c8ff",
+        "rawFaces": 256402,
+        "decimatedFaces": 10000,
+        "fileKB": 181.2
+      },
+      {
+        "segId": "720575940620071872",
+        "color": "#d4ff7e",
+        "rawFaces": 260510,
+        "decimatedFaces": 10000,
+        "fileKB": 180.8
+      },
+      {
+        "segId": "720575940626779644",
+        "color": "#ff9aa2",
+        "rawFaces": 275794,
+        "decimatedFaces": 9999,
+        "fileKB": 181.2
+      },
+      {
+        "segId": "720575940635757936",
+        "color": "#ff7ee0",
+        "rawFaces": 257506,
+        "decimatedFaces": 9999,
+        "fileKB": 180.0
+      },
+      {
+        "segId": "720575940626976522",
+        "color": "#7ee0ff",
+        "rawFaces": 268764,
+        "decimatedFaces": 9999,
+        "fileKB": 181.9
+      },
+      {
+        "segId": "720575940628429056",
+        "color": "#ffd97e",
+        "rawFaces": 258674,
+        "decimatedFaces": 10000,
+        "fileKB": 178.9
+      },
+      {
+        "segId": "720575940622651389",
+        "color": "#9af5d8",
+        "rawFaces": 258388,
+        "decimatedFaces": 9999,
+        "fileKB": 180.5
+      },
+      {
+        "segId": "720575940643977070",
+        "color": "#b78bff",
+        "rawFaces": 321060,
+        "decimatedFaces": 9999,
+        "fileKB": 179.2
+      },
+      {
+        "segId": "720575940607927817",
+        "color": "#ffb87a",
+        "rawFaces": 283076,
+        "decimatedFaces": 10000,
+        "fileKB": 182.3
+      },
+      {
+        "segId": "720575940642284704",
+        "color": "#aedeff",
+        "rawFaces": 229706,
+        "decimatedFaces": 10000,
+        "fileKB": 180.0
+      },
+      {
+        "segId": "720575940619844534",
+        "color": "#c2c8ff",
+        "rawFaces": 284250,
+        "decimatedFaces": 10000,
+        "fileKB": 180.4
+      },
+      {
+        "segId": "720575940633471839",
+        "color": "#d4ff7e",
+        "rawFaces": 270124,
+        "decimatedFaces": 9999,
+        "fileKB": 180.1
+      },
+      {
+        "segId": "720575940631240296",
+        "color": "#ff9aa2",
+        "rawFaces": 277124,
+        "decimatedFaces": 10000,
+        "fileKB": 180.4
+      },
+      {
+        "segId": "720575940624045155",
+        "color": "#ff7ee0",
+        "rawFaces": 246182,
+        "decimatedFaces": 10000,
+        "fileKB": 180.9
+      },
+      {
+        "segId": "720575940645824035",
+        "color": "#7ee0ff",
+        "rawFaces": 262808,
+        "decimatedFaces": 9999,
+        "fileKB": 180.4
+      },
+      {
+        "segId": "720575940623942119",
+        "color": "#ffd97e",
+        "rawFaces": 283744,
+        "decimatedFaces": 10000,
+        "fileKB": 181.4
+      },
+      {
+        "segId": "720575940614102930",
+        "color": "#9af5d8",
+        "rawFaces": 283534,
+        "decimatedFaces": 10000,
+        "fileKB": 180.6
+      },
+      {
+        "segId": "720575940633509407",
+        "color": "#b78bff",
+        "rawFaces": 261312,
+        "decimatedFaces": 10000,
+        "fileKB": 182.6
+      },
+      {
+        "segId": "720575940615723350",
+        "color": "#ffb87a",
+        "rawFaces": 252336,
+        "decimatedFaces": 9999,
+        "fileKB": 180.3
+      },
+      {
+        "segId": "720575940636093541",
+        "color": "#aedeff",
+        "rawFaces": 249450,
+        "decimatedFaces": 9999,
+        "fileKB": 180.7
+      },
+      {
+        "segId": "720575940627253865",
+        "color": "#c2c8ff",
+        "rawFaces": 265300,
+        "decimatedFaces": 10000,
+        "fileKB": 180.3
+      },
+      {
+        "segId": "720575940639427416",
+        "color": "#d4ff7e",
+        "rawFaces": 279502,
+        "decimatedFaces": 10000,
+        "fileKB": 182.7
+      },
+      {
+        "segId": "720575940622262593",
+        "color": "#ff9aa2",
+        "rawFaces": 255492,
+        "decimatedFaces": 10000,
+        "fileKB": 180.1
+      },
+      {
+        "segId": "720575940605328230",
+        "color": "#ff7ee0",
+        "rawFaces": 249388,
+        "decimatedFaces": 10000,
+        "fileKB": 180.5
+      },
+      {
+        "segId": "720575940625821758",
+        "color": "#7ee0ff",
+        "rawFaces": 245164,
+        "decimatedFaces": 9999,
+        "fileKB": 180.1
+      },
+      {
+        "segId": "720575940620574305",
+        "color": "#ffd97e",
+        "rawFaces": 268168,
+        "decimatedFaces": 10000,
+        "fileKB": 181.4
+      },
+      {
+        "segId": "720575940637472053",
+        "color": "#9af5d8",
+        "rawFaces": 291732,
+        "decimatedFaces": 10000,
+        "fileKB": 180.9
+      },
+      {
+        "segId": "720575940624689336",
+        "color": "#b78bff",
+        "rawFaces": 264482,
+        "decimatedFaces": 9999,
+        "fileKB": 180.9
+      },
+      {
+        "segId": "720575940630496975",
+        "color": "#ffb87a",
+        "rawFaces": 260464,
+        "decimatedFaces": 10000,
+        "fileKB": 181.6
+      },
+      {
+        "segId": "720575940647088004",
+        "color": "#aedeff",
+        "rawFaces": 239330,
+        "decimatedFaces": 9999,
+        "fileKB": 179.1
+      },
+      {
+        "segId": "720575940628621316",
+        "color": "#c2c8ff",
+        "rawFaces": 245644,
+        "decimatedFaces": 9999,
+        "fileKB": 181.5
+      },
+      {
+        "segId": "720575940619451233",
+        "color": "#d4ff7e",
+        "rawFaces": 258230,
+        "decimatedFaces": 10000,
+        "fileKB": 179.7
+      },
+      {
+        "segId": "720575940616546333",
+        "color": "#ff9aa2",
+        "rawFaces": 246402,
+        "decimatedFaces": 10000,
+        "fileKB": 182.6
+      },
+      {
+        "segId": "720575940617577797",
+        "color": "#ff7ee0",
+        "rawFaces": 244882,
+        "decimatedFaces": 9999,
+        "fileKB": 180.9
+      },
+      {
+        "segId": "720575940622281399",
+        "color": "#7ee0ff",
+        "rawFaces": 235466,
+        "decimatedFaces": 10000,
+        "fileKB": 181.9
+      },
+      {
+        "segId": "720575940618539422",
+        "color": "#ffd97e",
+        "rawFaces": 262684,
+        "decimatedFaces": 9998,
+        "fileKB": 181.6
+      },
+      {
+        "segId": "720575940622891923",
+        "color": "#9af5d8",
+        "rawFaces": 240898,
+        "decimatedFaces": 10000,
+        "fileKB": 179.5
+      },
+      {
+        "segId": "720575940639080526",
+        "color": "#b78bff",
+        "rawFaces": 260054,
+        "decimatedFaces": 9999,
+        "fileKB": 181.3
+      },
+      {
+        "segId": "720575940627996315",
+        "color": "#ffb87a",
+        "rawFaces": 245452,
+        "decimatedFaces": 10000,
+        "fileKB": 180.5
+      },
+      {
+        "segId": "720575940622276791",
+        "color": "#aedeff",
+        "rawFaces": 259966,
+        "decimatedFaces": 10000,
+        "fileKB": 181.6
+      },
+      {
+        "segId": "720575940630664273",
+        "color": "#c2c8ff",
+        "rawFaces": 256490,
+        "decimatedFaces": 10000,
+        "fileKB": 180.3
+      },
+      {
+        "segId": "720575940627316303",
+        "color": "#d4ff7e",
+        "rawFaces": 270626,
+        "decimatedFaces": 9999,
+        "fileKB": 182.6
+      },
+      {
+        "segId": "720575940629350782",
+        "color": "#ff9aa2",
+        "rawFaces": 268694,
+        "decimatedFaces": 9999,
+        "fileKB": 181.1
+      },
+      {
+        "segId": "720575940606001074",
+        "color": "#ff7ee0",
+        "rawFaces": 266920,
+        "decimatedFaces": 10000,
+        "fileKB": 179.8
+      },
+      {
+        "segId": "720575940635562096",
+        "color": "#7ee0ff",
+        "rawFaces": 164932,
+        "decimatedFaces": 9999,
+        "fileKB": 180.5
+      },
+      {
+        "segId": "720575940624223888",
+        "color": "#ffd97e",
+        "rawFaces": 264644,
+        "decimatedFaces": 9999,
+        "fileKB": 179.5
+      },
+      {
+        "segId": "720575940617825563",
+        "color": "#9af5d8",
+        "rawFaces": 248978,
+        "decimatedFaces": 10000,
+        "fileKB": 181.0
+      },
+      {
+        "segId": "720575940627163560",
+        "color": "#b78bff",
+        "rawFaces": 240308,
+        "decimatedFaces": 9999,
+        "fileKB": 179.2
+      },
+      {
+        "segId": "720575940619702337",
+        "color": "#ffb87a",
+        "rawFaces": 240292,
+        "decimatedFaces": 10000,
+        "fileKB": 181.7
+      },
+      {
+        "segId": "720575940628749111",
+        "color": "#aedeff",
+        "rawFaces": 229222,
+        "decimatedFaces": 9999,
+        "fileKB": 181.2
+      },
+      {
+        "segId": "720575940643980910",
+        "color": "#c2c8ff",
+        "rawFaces": 256232,
+        "decimatedFaces": 10000,
+        "fileKB": 180.9
+      },
+      {
+        "segId": "720575940610059726",
+        "color": "#d4ff7e",
+        "rawFaces": 238524,
+        "decimatedFaces": 9999,
+        "fileKB": 182.8
+      },
+      {
+        "segId": "720575940617351990",
+        "color": "#ff9aa2",
+        "rawFaces": 246394,
+        "decimatedFaces": 10000,
+        "fileKB": 179.8
+      },
+      {
+        "segId": "720575940618696920",
+        "color": "#ff7ee0",
+        "rawFaces": 252862,
+        "decimatedFaces": 9999,
+        "fileKB": 180.4
+      },
+      {
+        "segId": "720575940619789248",
+        "color": "#7ee0ff",
+        "rawFaces": 238142,
+        "decimatedFaces": 9999,
+        "fileKB": 181.5
+      },
+      {
+        "segId": "720575940614522847",
+        "color": "#ffd97e",
+        "rawFaces": 282998,
+        "decimatedFaces": 9999,
+        "fileKB": 180.6
+      },
+      {
+        "segId": "720575940636187054",
+        "color": "#9af5d8",
+        "rawFaces": 268350,
+        "decimatedFaces": 10000,
+        "fileKB": 181.5
+      },
+      {
+        "segId": "720575940627526735",
+        "color": "#b78bff",
+        "rawFaces": 246064,
+        "decimatedFaces": 10000,
+        "fileKB": 180.3
+      },
+      {
+        "segId": "720575940614559163",
+        "color": "#ffb87a",
+        "rawFaces": 283548,
+        "decimatedFaces": 9999,
+        "fileKB": 181.1
+      },
+      {
+        "segId": "720575940622564621",
+        "color": "#aedeff",
+        "rawFaces": 266040,
+        "decimatedFaces": 10000,
+        "fileKB": 179.4
+      },
+      {
+        "segId": "720575940626868818",
+        "color": "#c2c8ff",
+        "rawFaces": 113760,
+        "decimatedFaces": 9999,
+        "fileKB": 179.2
+      },
+      {
+        "segId": "720575940619071005",
+        "color": "#d4ff7e",
+        "rawFaces": 5678566,
+        "decimatedFaces": 10000,
+        "fileKB": 192.6
+      },
+      {
+        "segId": "720575940630770042",
+        "color": "#ff9aa2",
+        "rawFaces": 5966176,
+        "decimatedFaces": 10000,
+        "fileKB": 195.0
       }
     ]
   }

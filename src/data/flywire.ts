@@ -811,6 +811,12 @@ export interface InteractiveView {
     id: string;
     cells: CircuitCellRef[];
   };
+  // When present, clicking the card shows a playful "this is a lot of cells"
+  // confirmation before opening Codex in a new tab. Used for views with too
+  // many cells to render inline.
+  hazard?: {
+    cellCount: number;
+  };
 }
 
 export const INTERACTIVE_VIEWS: InteractiveView[] = [
@@ -856,6 +862,85 @@ export const INTERACTIVE_VIEWS: InteractiveView[] = [
     description:
       "Every olfactory receptor neuron innervating the DM1 glomerulus, plus the two projection neurons that carry DM1's signal forward to the mushroom body and the lateral horn.",
     codexUrl: "https://codex.flywire.ai/app/search?filter_string=ORN_DM1,DM1_lPN",
+    circuit: {
+      id: "orn-dm1",
+      // 68 ORN_DM1 (cyan, since they're functionally identical) + 2 DM1_lPN
+      // (pink + gold to stand out as the projection neurons that carry the
+      // signal forward).
+      cells: [
+        { segId: "720575940619419757", color: "#7ee0ff" },
+        { segId: "720575940629918762", color: "#7ee0ff" },
+        { segId: "720575940629728732", color: "#7ee0ff" },
+        { segId: "720575940620028788", color: "#7ee0ff" },
+        { segId: "720575940632224031", color: "#7ee0ff" },
+        { segId: "720575940628800277", color: "#7ee0ff" },
+        { segId: "720575940631217782", color: "#7ee0ff" },
+        { segId: "720575940635146926", color: "#7ee0ff" },
+        { segId: "720575940620071872", color: "#7ee0ff" },
+        { segId: "720575940626779644", color: "#7ee0ff" },
+        { segId: "720575940635757936", color: "#7ee0ff" },
+        { segId: "720575940626976522", color: "#7ee0ff" },
+        { segId: "720575940628429056", color: "#7ee0ff" },
+        { segId: "720575940622651389", color: "#7ee0ff" },
+        { segId: "720575940643977070", color: "#7ee0ff" },
+        { segId: "720575940607927817", color: "#7ee0ff" },
+        { segId: "720575940642284704", color: "#7ee0ff" },
+        { segId: "720575940619844534", color: "#7ee0ff" },
+        { segId: "720575940633471839", color: "#7ee0ff" },
+        { segId: "720575940631240296", color: "#7ee0ff" },
+        { segId: "720575940624045155", color: "#7ee0ff" },
+        { segId: "720575940645824035", color: "#7ee0ff" },
+        { segId: "720575940623942119", color: "#7ee0ff" },
+        { segId: "720575940614102930", color: "#7ee0ff" },
+        { segId: "720575940633509407", color: "#7ee0ff" },
+        { segId: "720575940615723350", color: "#7ee0ff" },
+        { segId: "720575940636093541", color: "#7ee0ff" },
+        { segId: "720575940627253865", color: "#7ee0ff" },
+        { segId: "720575940639427416", color: "#7ee0ff" },
+        { segId: "720575940622262593", color: "#7ee0ff" },
+        { segId: "720575940605328230", color: "#7ee0ff" },
+        { segId: "720575940625821758", color: "#7ee0ff" },
+        { segId: "720575940620574305", color: "#7ee0ff" },
+        { segId: "720575940637472053", color: "#7ee0ff" },
+        { segId: "720575940624689336", color: "#7ee0ff" },
+        { segId: "720575940630496975", color: "#7ee0ff" },
+        { segId: "720575940647088004", color: "#7ee0ff" },
+        { segId: "720575940628621316", color: "#7ee0ff" },
+        { segId: "720575940619451233", color: "#7ee0ff" },
+        { segId: "720575940616546333", color: "#7ee0ff" },
+        { segId: "720575940617577797", color: "#7ee0ff" },
+        { segId: "720575940622281399", color: "#7ee0ff" },
+        { segId: "720575940618539422", color: "#7ee0ff" },
+        { segId: "720575940622891923", color: "#7ee0ff" },
+        { segId: "720575940639080526", color: "#7ee0ff" },
+        { segId: "720575940627996315", color: "#7ee0ff" },
+        { segId: "720575940622276791", color: "#7ee0ff" },
+        { segId: "720575940630664273", color: "#7ee0ff" },
+        { segId: "720575940627316303", color: "#7ee0ff" },
+        { segId: "720575940629350782", color: "#7ee0ff" },
+        { segId: "720575940606001074", color: "#7ee0ff" },
+        { segId: "720575940635562096", color: "#7ee0ff" },
+        { segId: "720575940624223888", color: "#7ee0ff" },
+        { segId: "720575940617825563", color: "#7ee0ff" },
+        { segId: "720575940627163560", color: "#7ee0ff" },
+        { segId: "720575940619702337", color: "#7ee0ff" },
+        { segId: "720575940628749111", color: "#7ee0ff" },
+        { segId: "720575940643980910", color: "#7ee0ff" },
+        { segId: "720575940610059726", color: "#7ee0ff" },
+        { segId: "720575940617351990", color: "#7ee0ff" },
+        { segId: "720575940618696920", color: "#7ee0ff" },
+        { segId: "720575940619789248", color: "#7ee0ff" },
+        { segId: "720575940614522847", color: "#7ee0ff" },
+        { segId: "720575940636187054", color: "#7ee0ff" },
+        { segId: "720575940627526735", color: "#7ee0ff" },
+        { segId: "720575940614559163", color: "#7ee0ff" },
+        { segId: "720575940622564621", color: "#7ee0ff" },
+        { segId: "720575940626868818", color: "#7ee0ff" },
+        // The 2 projection neurons that carry DM1's signal forward.
+        { segId: "720575940619071005", color: "#ff7ee0" },
+        { segId: "720575940630770042", color: "#ffd97e" },
+      ],
+    },
   },
   {
     thumbnail: "ring_neurons.png",
@@ -864,6 +949,15 @@ export const INTERACTIVE_VIEWS: InteractiveView[] = [
       "Ring neurons of the central complex, arranged in a ring around the ellipsoid body, integrating sensory landmarks with the fly's internal heading estimate to drive navigation.",
     codexUrl:
       "https://codex.flywire.ai/app/search?filter_string=label+%3D%3D+ExR1",
+    circuit: {
+      id: "ring-neurons",
+      cells: [
+        { segId: "720575940612869269", color: "#ff7ee0" },
+        { segId: "720575940639278399", color: "#7ee0ff" },
+        { segId: "720575940615101747", color: "#ffd97e" },
+        { segId: "720575940640749939", color: "#9af5d8" },
+      ],
+    },
   },
   {
     thumbnail: "ocellar.png",
@@ -871,6 +965,7 @@ export const INTERACTIVE_VIEWS: InteractiveView[] = [
     description:
       "Every neuron with arbors in the ocellar ganglion, the small dorsal input from the three simple eyes (ocelli) that detect ambient light level and help stabilize flight.",
     codexUrl: "https://codex.flywire.ai/app/search?filter_string=ocellar",
+    hazard: { cellCount: 336 },
   },
 ];
 

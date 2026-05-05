@@ -8,6 +8,7 @@ import {
   INTERACTIVE_VIEWS,
   creditFor,
   type FlyWireImage,
+  type InteractiveView,
 } from "../data/flywire";
 import NeuropilBrain from "../components/NeuropilBrain";
 import CircuitViewer from "../components/CircuitViewer";
@@ -232,6 +233,7 @@ export default function FlyWireGallery() {
 
   const [copied, setCopied] = useState(false);
   const [hoveredNeuropils, setHoveredNeuropils] = useState<string[]>([]);
+  const [hazardView, setHazardView] = useState<InteractiveView | null>(null);
 
   const selectedIndex = selected
     ? flyWireImages.findIndex((img) => img.filename === selected.filename)
@@ -453,6 +455,23 @@ export default function FlyWireGallery() {
                             cells={view.circuit.cells}
                             height={240}
                           />
+                        ) : view.hazard ? (
+                          <button
+                            onClick={() => setHazardView(view)}
+                            className="block w-full text-left group"
+                          >
+                            <div className="aspect-video bg-white/[0.03] overflow-hidden relative">
+                              <img
+                                src={imgSrc(view.thumbnail)}
+                                alt={view.title}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                              />
+                              <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-yellow-300/15 border border-yellow-200/25 text-yellow-100 text-[9px] uppercase tracking-[0.2em] backdrop-blur-sm">
+                                ☣ {view.hazard.cellCount} cells
+                              </div>
+                            </div>
+                          </button>
                         ) : (
                           <a
                             href={view.codexUrl}
@@ -484,17 +503,29 @@ export default function FlyWireGallery() {
                           <p className="text-[12.5px] text-white/55 leading-relaxed mb-3">
                             {view.description}
                           </p>
-                          <a
-                            href={view.codexUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-white/80 transition group/link"
-                          >
-                            Open in Codex
-                            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
-                              <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </a>
+                          {view.hazard ? (
+                            <button
+                              onClick={() => setHazardView(view)}
+                              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-yellow-100/70 hover:text-yellow-100 transition group/link"
+                            >
+                              ☣ Open in Codex
+                              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
+                                <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </button>
+                          ) : (
+                            <a
+                              href={view.codexUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-white/80 transition group/link"
+                            >
+                              Open in Codex
+                              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
+                                <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </a>
+                          )}
                         </div>
                       </motion.div>
                     ))}
@@ -689,6 +720,101 @@ export default function FlyWireGallery() {
           />
         )}
       </AnimatePresence>
+
+      {/* Hazard confirm modal — for views with too many cells to render inline */}
+      <AnimatePresence>
+        {hazardView && (
+          <HazardConfirm
+            view={hazardView}
+            onCancel={() => setHazardView(null)}
+            onProceed={() => {
+              window.open(hazardView.codexUrl, "_blank", "noopener,noreferrer");
+              setHazardView(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </>
+  );
+}
+
+// ── Hazard Confirm Modal ─────────────────────────────────────────────────
+
+function HazardConfirm({
+  view,
+  onCancel,
+  onProceed,
+}: {
+  view: InteractiveView;
+  onCancel: () => void;
+  onProceed: () => void;
+}) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onCancel();
+      if (e.key === "Enter") onProceed();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onCancel, onProceed]);
+
+  const count = view.hazard?.cellCount ?? 0;
+
+  return (
+    <motion.div
+      key="hazard-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.18 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-6"
+      style={{ background: "rgba(4,6,12,0.85)", backdropFilter: "blur(8px)" }}
+      onClick={onCancel}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 12 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        className="relative max-w-md w-full glass-strong rounded-2xl overflow-hidden p-7 sm:p-9"
+        style={{
+          borderTop: "2px solid rgba(254, 240, 138, 0.4)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start gap-4 mb-5">
+          <div className="text-3xl leading-none translate-y-[-2px] text-yellow-200/90 select-none">
+            ☣
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-yellow-200/80 mb-2">
+              Biological Hazard
+            </p>
+            <h3 className="font-display text-xl font-light leading-snug">
+              {count.toLocaleString()} neurons incoming
+            </h3>
+          </div>
+        </div>
+        <p className="text-sm text-white/65 leading-relaxed mb-7">
+          {view.title} loads {count.toLocaleString()} cells in Codex. May cause
+          fan noise, mild awe, and a temporary spike in synaptic envy. Open in
+          a new tab?
+        </p>
+        <div className="flex items-center justify-end gap-3">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-[11px] uppercase tracking-[0.25em] text-white/55 hover:text-white/85 transition"
+          >
+            Nope
+          </button>
+          <button
+            onClick={onProceed}
+            className="px-5 py-2 rounded-full text-[11px] uppercase tracking-[0.25em] bg-yellow-200/15 hover:bg-yellow-200/25 text-yellow-50 border border-yellow-200/30 transition"
+          >
+            Bring it on
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
