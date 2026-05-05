@@ -560,10 +560,11 @@ export default function FlyWireGallery() {
           </div>
 
           {/* Secondary videos */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
             {[
               { id: "J2xTkMsZchs", title: "Fly Connectome", desc: "An overview of the FlyWire project and the scientific questions a complete connectome can answer." },
-              { id: "o1qjC5OI9mc", title: "The BANC", desc: "The Brain And Nerve Cord connectome, extending the map beyond the brain into the fly's ventral nerve cord." },
+              { id: "OSKunbBWAq8", title: "The BANC", desc: "The Brain And Nerve Cord connectome, extending the map beyond the brain into the fly's ventral nerve cord." },
+              { id: "RQuYaMDc1d0", title: "All FlyWire Neurons", desc: "Every one of the 139,255 neurons in the adult Drosophila brain, rendered together in motion." },
             ].map((v) => (
               <div key={v.id}>
                 <div className="relative w-full rounded-xl overflow-hidden bg-black" style={{ paddingBottom: "56.25%" }}>
