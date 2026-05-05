@@ -276,7 +276,7 @@ export const flyWireImages: FlyWireImage[] = [
     filename: "1.10.c_MBIN_MB-left.view.view.cam_0000.png",
     title: "Mushroom Body Input Neurons (Left Lobe)",
     caption:
-      "Mushroom Body Input Neurons in the left lobe are the fly's teaching staff, delivering value signals,'that smell meant food' or 'that light meant danger', directly onto Kenyon Cell dendrites. Each MBIN tiles a different compartment of the lobe, creating a modular memory-update system of elegant precision.",
+      "Mushroom Body Input Neurons in the left lobe are the fly's teaching staff, delivering value signals like 'that smell meant food' or 'that light meant danger' directly onto Kenyon Cell dendrites. Each MBIN tiles a different compartment of the lobe, creating a modular memory-update system of elegant precision.",
     group: "The Mushroom Body",
   },
   {
@@ -513,6 +513,13 @@ export const flyWireImages: FlyWireImage[] = [
       "The same 100 visual neuron types seen from the whole-brain perspective, their axons projecting from the optic lobe deep into the central brain. Together they carry the full richness of visual information, edges, motion, color, looming, and more, to circuits that translate it into behavior.",
     group: "Visual Neuron Diversity",
   },
+  {
+    filename: "3.4_chiasms_cmap-type_4K.png",
+    title: "Optic Chiasms, Colored by Type",
+    caption:
+      "The optic chiasms are the crossing points between successive visual neuropils, where the orderly map of the retina is inverted and re-inverted as signals pass from Lamina to Medulla to Lobula. Colored by cell type, this image makes visible the architectural crossing that preserves spatial information through the visual hierarchy.",
+    group: "Visual Neuron Diversity",
+  },
 
   // ── Serpentine Neurons ───────────────────────────────────────────────
   {
@@ -633,13 +640,6 @@ export const flyWireImages: FlyWireImage[] = [
   },
 
   // ── The Whole Connectome ─────────────────────────────────────────────
-  {
-    filename: "3.4_chiasms_cmap-type_4K.png",
-    title: "Optic Chiasms, Colored by Type",
-    caption:
-      "The optic chiasms are the crossing points between successive visual neuropils, where the orderly map of the retina is inverted and re-inverted as signals pass from Lamina to Medulla to Lobula. Colored by cell type, this image makes visible the architectural crossing that preserves spatial information through the visual hierarchy.",
-    group: "Visual Neuron Diversity",
-  },
   {
     filename: "50_largest_4k.png",
     title: "The 50 Largest Neurons in the Fly Brain",

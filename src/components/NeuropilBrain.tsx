@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { NEUROPILS } from "../data/neuropilMap";
 
 interface Props {
@@ -69,7 +70,20 @@ export default function NeuropilBrain({ highlighted }: Props) {
     fill.position.set(-2, 0, 1);
     scene.add(fill);
 
-    // ── Pivot group (rotation only — geometry is pre-normalized) ──────────
+    // ── Controls (click-drag rotate, gentle auto-spin when idle) ──────────
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.rotateSpeed = 0.7;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.6;
+    // Pause auto-rotate while user is dragging; resume when they let go.
+    controls.addEventListener("start", () => { controls.autoRotate = false; });
+    controls.addEventListener("end", () => { controls.autoRotate = true; });
+
+    // ── Pivot group (kept for hierarchy; rotation now driven by camera) ───
     const pivot = new THREE.Group();
     scene.add(pivot);
 
@@ -150,7 +164,7 @@ export default function NeuropilBrain({ highlighted }: Props) {
     let frameId = 0;
     const animate = () => {
       frameId = requestAnimationFrame(animate);
-      pivot.rotation.y += 0.004;
+      controls.update();
 
       const hl = highlightedRef.current;
       const anyHl = hl.length > 0;
@@ -171,6 +185,7 @@ export default function NeuropilBrain({ highlighted }: Props) {
       destroyed = true;
       cancelAnimationFrame(frameId);
       ro.disconnect();
+      controls.dispose();
       renderer.dispose();
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
@@ -183,7 +198,7 @@ export default function NeuropilBrain({ highlighted }: Props) {
   return (
     <div
       ref={containerRef}
-      className="w-full rounded-xl overflow-hidden"
+      className="w-full rounded-xl overflow-hidden cursor-grab active:cursor-grabbing"
       style={{ height: "280px", background: "rgba(4,6,12,0.5)" }}
     />
   );
