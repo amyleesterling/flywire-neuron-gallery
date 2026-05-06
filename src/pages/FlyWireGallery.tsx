@@ -613,6 +613,31 @@ export default function FlyWireGallery() {
           </motion.div>
         </div>
 
+        {/* ── Overview / About the connectome ──────────────────── */}
+        <section className="px-6 pt-24 pb-4">
+          <div className="max-w-3xl mx-auto">
+            <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-5">Overview</p>
+            <h2 className="holo-text font-display text-2xl md:text-3xl font-light mb-6">
+              What is the FlyWire Connectome?
+            </h2>
+            <p className="text-sm md:text-[15px] text-white/55 font-light leading-relaxed">
+              The FlyWire connectome was published in a special edition of <em>Nature</em>{" "}
+              in October 2024, presenting the first complete synapse-resolution wiring diagram
+              of a centralized brain. It contains ~140,000 neurons and ~50 million synaptic
+              connections. This landmark connectomics dataset was reconstructed via volumetric
+              electron microscopy with AI segmentation, community and expert proofreading, and
+              annotation contributions from the global <em>Drosophila</em> scientific
+              community. The publication package includes the core wiring diagram, a whole
+              brain cell type atlas, a brain simulation, network analyses, visual system
+              studies, and experiments showing how connectome data can generate new
+              hypotheses about behavior. Since release, the dataset has been driving an
+              expanding wave of new research, from circuit level dissections of vision and
+              navigation to whole brain models of behavior, with new findings published
+              regularly.
+            </p>
+          </div>
+        </section>
+
         {/* ── Gallery sections ──────────────────────────────────────── */}
         {/* Larger left padding on mobile so headings clear the fixed
             progress rail at left-6; restore symmetric padding from md+ */}
@@ -1000,6 +1025,55 @@ export default function FlyWireGallery() {
                 <p className="text-[11px] text-white/35 mt-auto">{p.authors}</p>
               </a>
             ))}
+          </div>
+
+          {/* Codex + FlyWire Academy — keep-exploring spotlight */}
+          <div className="mt-12 pt-10 border-t border-white/10">
+            <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-5">Keep Exploring</p>
+            <p className="text-sm md:text-[15px] text-white/55 font-light leading-relaxed max-w-3xl">
+              To keep exploring, visit{" "}
+              <a
+                href="https://codex.flywire.ai"
+                target="_blank"
+                rel="noreferrer"
+                className="text-white/80 underline underline-offset-4 decoration-white/25 hover:decoration-white/70 transition"
+              >Codex</a>, the FlyWire Connectome Data Explorer, or{" "}
+              <a
+                href="https://codex.flywire.ai/academy_home"
+                target="_blank"
+                rel="noreferrer"
+                className="text-white/80 underline underline-offset-4 decoration-white/25 hover:decoration-white/70 transition"
+              >FlyWire Academy</a> for classroom-ready lessons, videos, and hands-on
+              connectomics activities.
+            </p>
+            <p className="mt-4 text-sm text-white/55 font-light leading-relaxed max-w-3xl">
+              Codex is a web-based set of tools for searching, visualizing, and analyzing
+              FlyWire datasets, including FAFB v783 with 139,255 neurons; FlyWire Academy
+              offers educational videos, worksheets, and lesson plans for high school,
+              college, and outreach use.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-6">
+              <a
+                href="https://codex.flywire.ai"
+                target="_blank"
+                rel="noreferrer"
+                className="group glass rounded-xl p-5 hover:bg-white/[0.07] hover:ring-1 hover:ring-white/15 transition-all duration-300 flex flex-col gap-3"
+              >
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/35">Tool</p>
+                <p className="text-sm font-light text-white/80 leading-snug group-hover:text-white transition">Codex — FlyWire Connectome Data Explorer</p>
+                <p className="text-[11px] text-white/35 mt-auto">codex.flywire.ai</p>
+              </a>
+              <a
+                href="https://codex.flywire.ai/academy_home"
+                target="_blank"
+                rel="noreferrer"
+                className="group glass rounded-xl p-5 hover:bg-white/[0.07] hover:ring-1 hover:ring-white/15 transition-all duration-300 flex flex-col gap-3"
+              >
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/35">Education</p>
+                <p className="text-sm font-light text-white/80 leading-snug group-hover:text-white transition">FlyWire Academy — Lessons &amp; Activities</p>
+                <p className="text-[11px] text-white/35 mt-auto">codex.flywire.ai/academy_home</p>
+              </a>
+            </div>
           </div>
         </div>
 
