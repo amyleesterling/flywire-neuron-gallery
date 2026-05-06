@@ -32,6 +32,21 @@
     overflow-x: hidden;
   }
 
+  /* Mobile: hide the native vertical scrollbar — the cyan progress rail
+     in the top-left HUD is the scroll indicator on phones. */
+  @media (max-width: 767px) {
+    html {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+  }
+
   ::selection {
     background: var(--color-glow-cyan);
     color: var(--color-ink-950);

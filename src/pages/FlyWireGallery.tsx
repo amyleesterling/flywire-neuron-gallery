@@ -218,7 +218,7 @@ function ImageCard({
       className="holo-card group text-left rounded-xl overflow-hidden glass hover:bg-white/[0.07] hover:-translate-y-0.5 transition-all duration-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
     >
       <span className="holo-trace" aria-hidden="true" />
-      <div className={`${aspect} bg-white/[0.03] overflow-hidden relative`}>
+      <div className={`${aspect} overflow-hidden relative`}>
         <img
           src={imgSrc(image.filename)}
           alt={image.title}
@@ -325,6 +325,24 @@ export default function FlyWireGallery() {
     }
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
+  }, []);
+
+  // Mobile-only: hide the top HUD + share pill until the user has scrolled
+  // past the hero. The buttons sit right where the title eyeline lands and
+  // make the landing feel cluttered on phones; on desktop there's plenty of
+  // room so they stay visible from the start.
+  const [pastHero, setPastHero] = useState(false);
+  useEffect(() => {
+    const onScroll = () => {
+      setPastHero(window.scrollY > window.innerHeight * 0.6);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   // Scroll-position HUD: which section is currently in the viewport.
@@ -485,7 +503,11 @@ export default function FlyWireGallery() {
       <div className="holo-scanlines" />
 
       {/* ── Scroll-position HUD: counter + vertical progress rail ──── */}
-      <div className="fixed top-6 left-6 bottom-6 z-30 flex flex-col items-start gap-4 pointer-events-none">
+      <div
+        className={`fixed top-6 left-6 bottom-6 z-30 flex flex-col items-start gap-4 pointer-events-none transition-opacity duration-500 ${
+          pastHero ? "opacity-100" : "opacity-0 md:opacity-100"
+        }`}
+      >
         <div className="holo-counter">
           <b>{String(activeSection + 1).padStart(2, "0")}</b>
           {" / "}
@@ -512,7 +534,7 @@ export default function FlyWireGallery() {
       </div>
 
       {/* ── Share button (fixed, top-right) + dropdown ─────────────── */}
-      <ShareMenu copied={copied} setCopied={setCopied} />
+      <ShareMenu copied={copied} setCopied={setCopied} pastHero={pastHero} />
 
       <main className="relative z-10 min-h-screen pb-32">
 
@@ -592,7 +614,9 @@ export default function FlyWireGallery() {
         </div>
 
         {/* ── Gallery sections ──────────────────────────────────────── */}
-        <div className="px-6 pt-20">
+        {/* Larger left padding on mobile so headings clear the fixed
+            progress rail at left-6; restore symmetric padding from md+ */}
+        <div className="pl-12 pr-6 pt-20 md:px-6">
 
         {/* Sections */}
         <div className="max-w-7xl mx-auto space-y-24 px-0">
@@ -757,7 +781,7 @@ export default function FlyWireGallery() {
                             onClick={() => setHazardView(view)}
                             className="block w-full text-left group"
                           >
-                            <div className="aspect-video bg-white/[0.03] overflow-hidden relative">
+                            <div className="aspect-video overflow-hidden relative">
                               <img
                                 src={imgSrc(view.thumbnail)}
                                 alt={view.title}
@@ -776,7 +800,7 @@ export default function FlyWireGallery() {
                             rel="noreferrer"
                             className="block group"
                           >
-                            <div className="aspect-video bg-white/[0.03] overflow-hidden relative">
+                            <div className="aspect-video overflow-hidden relative">
                               <img
                                 src={imgSrc(view.thumbnail)}
                                 alt={view.title}
@@ -1099,9 +1123,11 @@ export default function FlyWireGallery() {
 function ShareMenu({
   copied,
   setCopied,
+  pastHero,
 }: {
   copied: boolean;
   setCopied: (b: boolean) => void;
+  pastHero: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -1170,7 +1196,12 @@ function ShareMenu({
   }
 
   return (
-    <div ref={wrapRef} className="fixed top-5 right-5 z-30">
+    <div
+      ref={wrapRef}
+      className={`fixed top-5 right-5 z-30 transition-opacity duration-500 ${
+        pastHero ? "opacity-100" : "opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto"
+      }`}
+    >
       <button
         onClick={() => setOpen((o) => !o)}
         className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-white/10 hover:border-cyan-200/40 text-[11px] uppercase tracking-[0.25em] text-white/75 hover:text-white transition"
