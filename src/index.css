@@ -166,9 +166,10 @@ body.present-mode header { display: none !important; }
   animation: holo-bg-drift 32s ease-in-out infinite;
 }
 
-/* Tech-grid dot lattice — alien-architecture undertone, fades at center.
-   Adds the "PCB / synapse map" feel the user asked for without bleeding
-   into card content. */
+/* Tech-grid dot lattice — alien-architecture undertone. The lattice is
+   masked to the middle vertical band of the viewport so it never bleeds
+   into the very top (where iOS' dynamic toolbar made it read as a
+   "strip of dots" artifact after scrolling) or the page footer. */
 .holo-grid {
   position: fixed;
   inset: 0;
@@ -176,8 +177,8 @@ body.present-mode header { display: none !important; }
   pointer-events: none;
   background-image: radial-gradient(circle, rgba(126, 224, 255, 0.10) 0.6px, transparent 1px);
   background-size: 28px 28px;
-  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, rgba(0,0,0,0.5) 50%, transparent 90%);
-          mask-image: radial-gradient(ellipse at center, black 0%, rgba(0,0,0,0.5) 50%, transparent 90%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 12%, black 28%, black 72%, transparent 92%);
+          mask-image: linear-gradient(to bottom, transparent 0%, transparent 12%, black 28%, black 72%, transparent 92%);
 }
 
 /* Faint horizontal scan lines — CRT-hologram tell, almost subliminal */

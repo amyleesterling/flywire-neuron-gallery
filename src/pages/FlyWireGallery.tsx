@@ -1272,7 +1272,7 @@ function ShareMenu({
   return (
     <div
       ref={wrapRef}
-      className={`fixed top-5 right-5 z-30 transition-opacity duration-500 ${
+      className={`fixed bottom-5 right-5 z-30 transition-opacity duration-500 ${
         pastHero ? "opacity-100" : "opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto"
       }`}
     >
@@ -1295,11 +1295,11 @@ function ShareMenu({
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            initial={{ opacity: 0, y: 6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.96 }}
+            exit={{ opacity: 0, y: 6, scale: 0.96 }}
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute right-0 top-full mt-2 w-48 glass rounded-xl overflow-hidden border border-white/10 shadow-xl"
+            className="absolute right-0 bottom-full mb-2 w-48 glass rounded-xl overflow-hidden border border-white/10 shadow-xl"
           >
             {targets.map((t) => {
               const isMailto = t.href.startsWith("mailto:");
