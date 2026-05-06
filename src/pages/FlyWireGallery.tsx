@@ -389,6 +389,11 @@ export default function FlyWireGallery() {
     return () => observer.disconnect();
   }, []);
 
+  // Section sub-dot tooltip state — hover on desktop, tap-and-hold on mobile.
+  const [tooltipIdx, setTooltipIdx] = useState<number | null>(null);
+  const longPressTimerRef = useRef<number | null>(null);
+  const longPressFiredRef = useRef(false);
+
   // Periodic holographic flicker — every ~25s, pick a random card and
   // briefly flicker its brightness. Suggests the whole UI is projected.
   useEffect(() => {
@@ -520,7 +525,7 @@ export default function FlyWireGallery() {
             style={{ height: `${((activeSection + 1) / FLYWIRE_GROUPS.length) * 100}%` }}
           />
           <span
-            className="absolute rounded-full bg-cyan-200 transition-[top] duration-700 ease-out"
+            className="absolute rounded-full bg-cyan-200 transition-[top] duration-700 ease-out pointer-events-none"
             style={{
               width: "7px",
               height: "7px",
@@ -530,6 +535,81 @@ export default function FlyWireGallery() {
                 "0 0 8px rgba(126, 224, 255, 0.95), 0 0 18px rgba(126, 224, 255, 0.5)",
             }}
           />
+          {/* Section sub-dots — hover (desktop) or tap-hold (mobile) reveals title */}
+          {FLYWIRE_GROUPS.map((group, i) => {
+            const t = ((i + 1) / FLYWIRE_GROUPS.length) * 100;
+            const isPassedOrActive = i <= activeSection;
+            const showTooltip = tooltipIdx === i;
+            return (
+              <a
+                key={group}
+                href={`#${slugify(group)}`}
+                aria-label={group}
+                className="group pointer-events-auto absolute block"
+                style={{
+                  top: `calc(${t}% - 9px)`,
+                  left: "-9px",
+                  width: "19px",
+                  height: "19px",
+                }}
+                onMouseEnter={() => setTooltipIdx(i)}
+                onMouseLeave={() => setTooltipIdx((cur) => (cur === i ? null : cur))}
+                onTouchStart={() => {
+                  longPressFiredRef.current = false;
+                  if (longPressTimerRef.current) {
+                    window.clearTimeout(longPressTimerRef.current);
+                  }
+                  longPressTimerRef.current = window.setTimeout(() => {
+                    setTooltipIdx(i);
+                    longPressFiredRef.current = true;
+                  }, 350);
+                }}
+                onTouchEnd={() => {
+                  if (longPressTimerRef.current) {
+                    window.clearTimeout(longPressTimerRef.current);
+                    longPressTimerRef.current = null;
+                  }
+                  if (longPressFiredRef.current) {
+                    window.setTimeout(() => {
+                      setTooltipIdx((cur) => (cur === i ? null : cur));
+                    }, 1500);
+                  }
+                }}
+                onTouchCancel={() => {
+                  if (longPressTimerRef.current) {
+                    window.clearTimeout(longPressTimerRef.current);
+                    longPressTimerRef.current = null;
+                  }
+                }}
+                onClick={(e) => {
+                  if (longPressFiredRef.current) {
+                    e.preventDefault();
+                    longPressFiredRef.current = false;
+                  }
+                }}
+              >
+                <span
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 block rounded-full transition-all duration-300 group-hover:scale-150"
+                  style={{
+                    width: "3px",
+                    height: "3px",
+                    background: isPassedOrActive
+                      ? "rgba(126, 224, 255, 0.55)"
+                      : "rgba(255, 255, 255, 0.28)",
+                    boxShadow: isPassedOrActive
+                      ? "0 0 4px rgba(126, 224, 255, 0.45)"
+                      : "none",
+                  }}
+                />
+                <span
+                  className="absolute left-5 top-1/2 -translate-y-1/2 whitespace-nowrap text-[10px] uppercase tracking-[0.25em] text-white/90 bg-black/80 backdrop-blur-sm px-2.5 py-1.5 rounded border border-white/10 transition-opacity duration-200 pointer-events-none"
+                  style={{ opacity: showTooltip ? 1 : 0 }}
+                >
+                  {group}
+                </span>
+              </a>
+            );
+          })}
         </div>
       </div>
 
@@ -615,7 +695,7 @@ export default function FlyWireGallery() {
 
         {/* ── Overview / About the connectome ──────────────────── */}
         <section className="px-6 pt-24 pb-4">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-3xl">
             <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-5">Overview</p>
             <h2 className="holo-text font-display text-2xl md:text-3xl font-light mb-6">
               What is the FlyWire Connectome?
@@ -1069,6 +1149,13 @@ export default function FlyWireGallery() {
                 rel="noreferrer"
                 className="group glass rounded-xl p-5 hover:bg-white/[0.07] hover:ring-1 hover:ring-white/15 transition-all duration-300 flex flex-col gap-3"
               >
+                <div className="flex items-center justify-center h-16 -mx-2 -mt-1 mb-1">
+                  <img
+                    src="https://codex.flywire.ai/asset/academy/title.png"
+                    alt="FlyWire Academy"
+                    className="max-h-full w-auto object-contain opacity-90 group-hover:opacity-100 transition"
+                  />
+                </div>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-white/35">Education</p>
                 <p className="text-sm font-light text-white/80 leading-snug group-hover:text-white transition">FlyWire Academy — Lessons &amp; Activities</p>
                 <p className="text-[11px] text-white/35 mt-auto">codex.flywire.ai/academy_home</p>
