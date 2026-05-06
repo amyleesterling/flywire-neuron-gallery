@@ -6,12 +6,7 @@ import {
   FLYWIRE_MEDIA_PICKS,
   type FlyWireImage,
 } from "../data/flywire";
-
-const BASE = import.meta.env.BASE_URL;
-
-function imgSrc(filename: string) {
-  return `${BASE}flywire/${encodeURIComponent(filename)}`;
-}
+import { Pic } from "../components/Pic";
 
 // ── Lightbox ─────────────────────────────────────────────────────────────
 
@@ -40,9 +35,13 @@ function Lightbox({ image, onClose }: { image: FlyWireImage; onClose: () => void
         className="relative max-w-5xl w-full"
         onClick={(e) => e.stopPropagation()}
       >
-        <img
-          src={imgSrc(image.filename)}
+        <Pic
+          filename={image.filename}
           alt={image.title}
+          sizes="(max-width: 1024px) 100vw, 70vw"
+          fallbackWidth={3840}
+          loading="eager"
+          fetchPriority="high"
           className="w-full max-h-[85vh] object-contain rounded-lg"
         />
         <button
@@ -163,10 +162,11 @@ export default function FlyWireMedia() {
                 aria-label={`Open full view: ${img.title}`}
               >
                 <div className="relative overflow-hidden rounded-xl bg-white/[0.03]">
-                  <img
-                    src={imgSrc(img.filename)}
+                  <Pic
+                    filename={img.filename}
                     alt={img.title}
-                    loading="lazy"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    fallbackWidth={1920}
                     className="w-full object-cover group-hover:scale-[1.015] transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.03] transition-colors duration-300 pointer-events-none rounded-xl" />

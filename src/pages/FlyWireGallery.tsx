@@ -17,6 +17,7 @@ import {
 } from "../data/flywireReferences";
 import NeuropilBrain from "../components/NeuropilBrain";
 import CircuitViewer from "../components/CircuitViewer";
+import { Pic } from "../components/Pic";
 import { FILENAME_TO_NEUROPILS, NEUROPILS } from "../data/neuropilMap";
 
 const BASE = import.meta.env.BASE_URL;
@@ -162,9 +163,13 @@ function Lightbox({
         <span className="holo-trace" aria-hidden="true" />
         {/* Image */}
         <div className="flex-1 min-h-0 flex items-center justify-center bg-black/30">
-          <img
-            src={imgSrc(image.filename)}
+          <Pic
+            filename={image.filename}
             alt={image.title}
+            sizes="(max-width: 1024px) 100vw, 70vw"
+            fallbackWidth={3840}
+            loading="eager"
+            fetchPriority="high"
             className="max-w-full max-h-[60vh] lg:max-h-[85vh] object-contain"
           />
         </div>
@@ -275,10 +280,11 @@ function ImageCard({
     >
       <span className="holo-trace" aria-hidden="true" />
       <div className={`${aspect} overflow-hidden relative`}>
-        <img
-          src={imgSrc(image.filename)}
+        <Pic
+          filename={image.filename}
           alt={image.title}
-          loading="lazy"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          fallbackWidth={1920}
           className={`w-full h-full ${objectFit === "contain" ? "object-contain" : "object-cover group-hover:scale-[1.03]"} transition-transform duration-500`}
         />
       </div>
@@ -962,10 +968,11 @@ export default function FlyWireGallery() {
                             className="block w-full text-left group"
                           >
                             <div className="aspect-video overflow-hidden relative">
-                              <img
-                                src={imgSrc(view.thumbnail)}
+                              <Pic
+                                filename={view.thumbnail}
                                 alt={view.title}
-                                loading="lazy"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                fallbackWidth={1920}
                                 className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
                               />
                               <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-yellow-300/15 border border-yellow-200/25 text-yellow-100 text-[9px] uppercase tracking-[0.2em] backdrop-blur-sm">
@@ -981,10 +988,11 @@ export default function FlyWireGallery() {
                             className="block group"
                           >
                             <div className="aspect-video overflow-hidden relative">
-                              <img
-                                src={imgSrc(view.thumbnail)}
+                              <Pic
+                                filename={view.thumbnail}
                                 alt={view.title}
-                                loading="lazy"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                fallbackWidth={1920}
                                 className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
                               />
                             </div>
