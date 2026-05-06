@@ -701,14 +701,18 @@ export default function FlyWireGallery() {
 
         {/* ── Hero video banner ─────────────────────────────────────── */}
         <div className="relative w-full overflow-hidden" style={{ height: "100svh" }}>
+          {/* AV1 (~53 MB) for modern browsers; H.264 (~90 MB) fallback for the rest. */}
           <video
-            src={`${import.meta.env.BASE_URL}flywire/flywire-poster.mp4`}
             autoPlay
             muted
             loop
             playsInline
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
-          />
+          >
+            <source src={`${import.meta.env.BASE_URL}flywire/flywire-hero.av1.mp4`} type='video/mp4; codecs="av01.0.08M.08"' />
+            <source src={`${import.meta.env.BASE_URL}flywire/flywire-poster.mp4`} type="video/mp4" />
+          </video>
           {/* Dark vignette — edges + bottom fade into page */}
           <div
             className="absolute inset-0 pointer-events-none"
