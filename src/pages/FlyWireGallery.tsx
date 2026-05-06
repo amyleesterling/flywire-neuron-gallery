@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect, useCallback } from "react";
+import { Fragment, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -101,9 +101,10 @@ function Lightbox({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 12 }}
         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className="relative flex flex-col lg:flex-row gap-0 max-w-6xl w-full max-h-[90vh] glass-strong rounded-2xl overflow-hidden"
+        className="holo-panel relative flex flex-col lg:flex-row gap-0 max-w-6xl w-full max-h-[90vh] glass-strong rounded-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
+        <span className="holo-trace" aria-hidden="true" />
         {/* Image */}
         <div className="flex-1 min-h-0 flex items-center justify-center bg-black/30">
           <img
@@ -116,7 +117,18 @@ function Lightbox({
         {/* Sidebar */}
         <div className="lg:w-80 flex-shrink-0 p-6 lg:p-8 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-white/10 overflow-y-auto">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.35em] text-white/35 mb-3">
+            {/* Centered FlyWire icon header with hairlines on either side */}
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <span className="h-px w-10 bg-gradient-to-l from-white/20 to-transparent" />
+              <img
+                src={imgSrc("flywire-icon-white.png")}
+                alt=""
+                className="w-4 h-4 opacity-55"
+                aria-hidden="true"
+              />
+              <span className="h-px w-10 bg-gradient-to-r from-white/20 to-transparent" />
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.35em] text-white/50 text-center mb-5">
               {image.group}
             </p>
             <h2 className="font-display text-xl font-light leading-snug mb-5">
@@ -184,6 +196,7 @@ function ImageCard({
   objectFit = "cover",
   onHover,
   onHoverEnd,
+  aspectClass,
 }: {
   image: FlyWireImage;
   index: number;
@@ -191,7 +204,9 @@ function ImageCard({
   objectFit?: "cover" | "contain";
   onHover?: (filename: string) => void;
   onHoverEnd?: () => void;
+  aspectClass?: string;
 }) {
+  const aspect = aspectClass ?? image.aspectClass ?? "aspect-video";
   return (
     <motion.button
       initial={{ opacity: 0, y: 16 }}
@@ -200,9 +215,10 @@ function ImageCard({
       onClick={onClick}
       onMouseEnter={() => onHover?.(image.filename)}
       onMouseLeave={() => onHoverEnd?.()}
-      className="group text-left rounded-xl overflow-hidden glass hover:bg-white/[0.07] hover:ring-1 hover:ring-white/15 hover:-translate-y-0.5 transition-all duration-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+      className="holo-card group text-left rounded-xl overflow-hidden glass hover:bg-white/[0.07] hover:-translate-y-0.5 transition-all duration-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
     >
-      <div className="aspect-video bg-white/[0.03] overflow-hidden relative">
+      <span className="holo-trace" aria-hidden="true" />
+      <div className={`${aspect} bg-white/[0.03] overflow-hidden relative`}>
         <img
           src={imgSrc(image.filename)}
           alt={image.title}
@@ -234,6 +250,142 @@ export default function FlyWireGallery() {
   const [copied, setCopied] = useState(false);
   const [hoveredNeuropils, setHoveredNeuropils] = useState<string[]>([]);
   const [hazardView, setHazardView] = useState<InteractiveView | null>(null);
+
+  // Drifting "neurotransmitter" particles — computed once so they don't
+  // resnap on every re-render. ~26 particles is enough for ambient texture
+  // without becoming visually busy.
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 70 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 22,
+        duration: 18 + Math.random() * 14,
+        size: 1.3 + Math.random() * 1.7,
+      })),
+    [],
+  );
+
+  // Click-stars + sonar ring — every click anywhere on the page bursts
+  // ~10 sparkles outward from the click point AND a single concentric
+  // ring expanding outward (Halo/Apex reticle confirm). Skipped on
+  // canvas clicks so 3D rotation doesn't trigger sparkles.
+  type Sparkle = {
+    id: number;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+    rot: number;
+    color: "" | "magenta" | "warm";
+  };
+  type Ring = { id: number; x: number; y: number };
+  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+  const [rings, setRings] = useState<Ring[]>([]);
+  // Track modal-open state via a ref so the document-level click handler
+  // (registered once) can read the latest value without re-binding.
+  const modalOpenRef = useRef(false);
+  useEffect(() => {
+    modalOpenRef.current = !!selected || !!hazardView;
+  }, [selected, hazardView]);
+  useEffect(() => {
+    let counter = 0;
+    function onClick(e: MouseEvent) {
+      // Skip the burst when a lightbox or hazard modal is open — clicking
+      // the backdrop to close the modal should feel like a normal click,
+      // not trigger sparkles + sonar.
+      if (modalOpenRef.current) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest?.("canvas")) return;
+      const palette: Sparkle["color"][] = ["", "", "", "magenta", "warm"];
+      const N = 11;
+      const burst: Sparkle[] = Array.from({ length: N }, (_, i) => {
+        const angle = (i / N) * Math.PI * 2 + Math.random() * 0.4;
+        const dist = 48 + Math.random() * 38;
+        return {
+          id: counter++,
+          x: e.clientX,
+          y: e.clientY,
+          dx: Math.cos(angle) * dist,
+          dy: Math.sin(angle) * dist,
+          rot: Math.random() * 360,
+          color: palette[Math.floor(Math.random() * palette.length)],
+        };
+      });
+      const ringId = counter++;
+      setSparkles((s) => [...s, ...burst]);
+      setRings((r) => [...r, { id: ringId, x: e.clientX, y: e.clientY }]);
+      const sparkIds = new Set(burst.map((b) => b.id));
+      window.setTimeout(() => {
+        setSparkles((s) => s.filter((sp) => !sparkIds.has(sp.id)));
+      }, 800);
+      window.setTimeout(() => {
+        setRings((r) => r.filter((rg) => rg.id !== ringId));
+      }, 800);
+    }
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
+  // Scroll-position HUD: which section is currently in the viewport.
+  const [activeSection, setActiveSection] = useState(0);
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll("main section[id]")) as HTMLElement[];
+    if (els.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = els.indexOf(entry.target as HTMLElement);
+            if (idx >= 0) setActiveSection(idx);
+          }
+        });
+      },
+      { rootMargin: "-35% 0px -55% 0px" },
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Section boot-in tags: which sections have been initialized once.
+  const [initedSections, setInitedSections] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll("main section[id]")) as HTMLElement[];
+    if (els.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setInitedSections((prev) => {
+              if (prev.has(entry.target.id)) return prev;
+              const next = new Set(prev);
+              next.add(entry.target.id);
+              return next;
+            });
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Periodic holographic flicker — every ~25s, pick a random card and
+  // briefly flicker its brightness. Suggests the whole UI is projected.
+  useEffect(() => {
+    const tick = () => {
+      const cards = document.querySelectorAll(".holo-card");
+      if (cards.length > 0) {
+        const card = cards[Math.floor(Math.random() * cards.length)] as HTMLElement;
+        card.classList.add("holo-flicker");
+        window.setTimeout(() => card.classList.remove("holo-flicker"), 750);
+      }
+    };
+    const interval = window.setInterval(tick, 22000);
+    return () => window.clearInterval(interval);
+  }, []);
+
 
   const selectedIndex = selected
     ? flyWireImages.findIndex((img) => img.filename === selected.filename)
@@ -267,6 +419,100 @@ export default function FlyWireGallery() {
         className="fixed inset-0 z-0 pointer-events-none"
         style={{ background: "rgba(4,6,12,1)" }}
       />
+
+      {/* ── Holographic ambient layers ──────────────────────────────── */}
+      {/* Slow drifting gradient field, very subtle */}
+      <div className="holo-bg" />
+      {/* Tactical dot lattice — alien-architecture undertone */}
+      <div className="holo-grid" />
+      {/* Hand-drawn circuit traces — synaptic chip-board feel. Faded
+          at the top + bottom of the viewport so they don't compete
+          with the hero video or the page footer. Dots removed (the
+          path strokes alone read better as ambient texture). */}
+      <svg
+        className="fixed inset-0 z-0 pointer-events-none w-full h-full"
+        viewBox="0 0 1600 1000"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+        style={{
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0%, transparent 12%, black 32%, black 75%, transparent 95%)",
+          maskImage:
+            "linear-gradient(to bottom, transparent 0%, transparent 12%, black 32%, black 75%, transparent 95%)",
+        }}
+      >
+        <g
+          stroke="rgba(126, 224, 255, 0.10)"
+          strokeWidth="0.6"
+          fill="none"
+          strokeLinecap="square"
+        >
+          <path d="M40 80 H180 V160 H280 V100 H400" />
+          <path d="M40 240 H140 V340 H260 V280 H380 V360" />
+          <path d="M120 480 H320 V560 H440" />
+          <path d="M60 700 H200 V780 H340 V720 H460" />
+          <path d="M40 880 H260 V940" />
+          <path d="M520 60 V200 H680 V120 H820" />
+          <path d="M540 320 H760 V440 H900" />
+          <path d="M520 580 V720 H680" />
+          <path d="M540 820 H720 V900 H860" />
+          <path d="M960 80 H1140 V200" />
+          <path d="M980 280 H1180 V380 H1300 V440" />
+          <path d="M960 540 V680 H1100 V620 H1240" />
+          <path d="M980 800 H1140 V900 H1260" />
+          <path d="M1340 80 V220 H1500" />
+          <path d="M1340 360 H1500" />
+          <path d="M1380 480 V620 H1540 V700" />
+          <path d="M1340 820 H1480 V940" />
+        </g>
+      </svg>
+      {/* Drifting neurotransmitter particles */}
+      <div className="holo-particles" aria-hidden="true">
+        {particles.map((p) => (
+          <i
+            key={p.id}
+            style={{
+              left: `${p.left}%`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              animationDuration: `${p.duration}s`,
+              animationDelay: `${p.delay}s`,
+            }}
+          />
+        ))}
+      </div>
+      {/* Faint CRT-hologram scan lines (subtle, never obtrusive) */}
+      <div className="holo-scanlines" />
+
+      {/* ── Scroll-position HUD: counter + vertical progress rail ──── */}
+      <div className="fixed top-6 left-6 bottom-6 z-30 flex flex-col items-start gap-4 pointer-events-none">
+        <div className="holo-counter">
+          <b>{String(activeSection + 1).padStart(2, "0")}</b>
+          {" / "}
+          {String(FLYWIRE_GROUPS.length).padStart(2, "0")}
+        </div>
+        <div className="relative flex-1" style={{ width: "1px" }}>
+          <div className="absolute inset-0 bg-white/10" />
+          <div
+            className="absolute top-0 left-0 right-0 bg-gradient-to-b from-cyan-300/80 via-cyan-300/55 to-cyan-300/25 transition-[height] duration-700 ease-out"
+            style={{ height: `${((activeSection + 1) / FLYWIRE_GROUPS.length) * 100}%` }}
+          />
+          <span
+            className="absolute rounded-full bg-cyan-200 transition-[top] duration-700 ease-out"
+            style={{
+              width: "7px",
+              height: "7px",
+              left: "-3px",
+              top: `calc(${((activeSection + 1) / FLYWIRE_GROUPS.length) * 100}% - 3.5px)`,
+              boxShadow:
+                "0 0 8px rgba(126, 224, 255, 0.95), 0 0 18px rgba(126, 224, 255, 0.5)",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* ── Share button (fixed, top-right) + dropdown ─────────────── */}
+      <ShareMenu copied={copied} setCopied={setCopied} />
 
       <main className="relative z-10 min-h-screen pb-32">
 
@@ -357,8 +603,11 @@ export default function FlyWireGallery() {
               <section id={slugify(group)} className="scroll-mt-24">
                 <div className="mb-8 flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="font-display text-2xl md:text-3xl font-light mb-2">
+                    <h2 className="holo-text font-display text-2xl md:text-3xl font-light mb-2">
                       {group}
+                      {initedSections.has(slugify(group)) && (
+                        <span key={slugify(group)} className="holo-init">[ INITIALIZED ]</span>
+                      )}
                     </h2>
                     <p className="text-sm text-white/45 font-light max-w-2xl leading-relaxed">
                       {FLYWIRE_GROUP_BLURBS[group]}
@@ -394,7 +643,7 @@ export default function FlyWireGallery() {
                           Neuropil Atlas
                         </p>
                         <p className="text-sm text-white/60 font-light mb-4 leading-relaxed">
-                          Fly brain regions, hover an image to highlight.
+                          Fly brain regions. Hover an image to highlight neuropil.
                         </p>
                         <NeuropilBrain highlighted={hoveredNeuropils} />
                         <div className="mt-3 min-h-[2rem]">
@@ -410,17 +659,64 @@ export default function FlyWireGallery() {
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <div className={group === "Infographics & Posters"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                    : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"}>
+                ) : group === "The Whole Connectome" ? (
+                  // Two flagship renders take the full content width side-by-side.
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                     {images.map((img, i) => (
                       <ImageCard
                         key={img.filename}
                         image={img}
                         index={i}
                         onClick={() => openImage(img)}
-                        objectFit={group === "Infographics & Posters" ? "contain" : "cover"}
+                      />
+                    ))}
+                  </div>
+                ) : group === "Infographics & Posters" ? (
+                  // Custom Infographics layout: vertical posters paired side-
+                  // by-side at portrait aspect (no black bars), landscape
+                  // pieces in a separate row beneath.
+                  (() => {
+                    const portraits = images.filter((i) => i.aspectClass === "aspect-[2/3]");
+                    const others = images.filter((i) => i.aspectClass !== "aspect-[2/3]");
+                    return (
+                      <div className="space-y-8">
+                        {portraits.length > 0 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto items-start">
+                            {portraits.map((img, i) => (
+                              <ImageCard
+                                key={img.filename}
+                                image={img}
+                                index={i}
+                                onClick={() => openImage(img)}
+                                objectFit="contain"
+                              />
+                            ))}
+                          </div>
+                        )}
+                        {others.length > 0 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+                            {others.map((img, i) => (
+                              <ImageCard
+                                key={img.filename}
+                                image={img}
+                                index={portraits.length + i}
+                                onClick={() => openImage(img)}
+                                objectFit="contain"
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {images.map((img, i) => (
+                      <ImageCard
+                        key={img.filename}
+                        image={img}
+                        index={i}
+                        onClick={() => openImage(img)}
                       />
                     ))}
                   </div>
@@ -432,28 +728,29 @@ export default function FlyWireGallery() {
                     <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-3">
                       Interactive 3D Views
                     </p>
-                    <h2 className="font-display text-2xl md:text-3xl font-light mb-3">
+                    <h2 className="holo-text font-display text-2xl md:text-3xl font-light mb-3">
                       Explore Living Circuits
                     </h2>
                     <p className="text-sm text-white/45 font-light max-w-2xl leading-relaxed">
-                      Each card opens a curated set of neurons in Codex, where you can rotate,
-                      slice, and trace the wiring synapse by synapse in your browser.
+                      Each card opens a curated set of neurons in Codex, where you can explore
+                      their connections and function.
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {INTERACTIVE_VIEWS.map((view, i) => (
                       <motion.div
                         key={view.thumbnail}
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.05 * i, ease: [0.16, 1, 0.3, 1] }}
-                        className="rounded-xl overflow-hidden glass hover:bg-white/[0.05] transition-colors duration-400"
+                        className="holo-card rounded-xl overflow-hidden glass hover:bg-white/[0.05] transition-colors duration-400 flex flex-col"
                       >
+                        <span className="holo-trace" aria-hidden="true" />
                         {view.circuit ? (
                           <CircuitViewer
                             circuitId={view.circuit.id}
                             cells={view.circuit.cells}
-                            height={240}
+                            height={300}
                           />
                         ) : view.hazard ? (
                           <button
@@ -489,7 +786,7 @@ export default function FlyWireGallery() {
                             </div>
                           </a>
                         )}
-                        <div className="p-5">
+                        <div className="p-5 flex-1 flex flex-col">
                           <div className="flex items-baseline justify-between gap-3 mb-2">
                             <h3 className="font-display text-base font-light leading-snug">
                               {view.title}
@@ -500,16 +797,16 @@ export default function FlyWireGallery() {
                               </span>
                             )}
                           </div>
-                          <p className="text-[12.5px] text-white/55 leading-relaxed mb-3">
+                          <p className="text-[12.5px] text-white/55 leading-relaxed mb-4 flex-1">
                             {view.description}
                           </p>
                           {view.hazard ? (
                             <button
                               onClick={() => setHazardView(view)}
-                              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-yellow-100/70 hover:text-yellow-100 transition group/link"
+                              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-yellow-300/10 hover:bg-yellow-300/20 border border-yellow-200/30 hover:border-yellow-200/55 text-[10px] uppercase tracking-[0.25em] text-yellow-50 transition self-start group/btn"
                             >
                               ☣ Open in Codex
-                              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
+                              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/btn:translate-x-0.5 transition-transform">
                                 <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                               </svg>
                             </button>
@@ -518,10 +815,10 @@ export default function FlyWireGallery() {
                               href={view.codexUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/40 hover:text-white/80 transition group/link"
+                              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-cyan-300/10 hover:bg-cyan-300/20 border border-cyan-200/30 hover:border-cyan-200/55 text-[10px] uppercase tracking-[0.25em] text-cyan-50 hover:text-white transition self-start group/btn"
                             >
                               Open in Codex
-                              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
+                              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/btn:translate-x-0.5 transition-transform">
                                 <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                               </svg>
                             </a>
@@ -540,7 +837,7 @@ export default function FlyWireGallery() {
         {/* ── Videos ─────────────────────────────────────────────────── */}
         <div className="mt-32 max-w-4xl mx-auto">
           <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-5">Videos</p>
-          <h2 className="font-display text-2xl md:text-3xl font-light mb-12">In Motion</h2>
+          <h2 className="holo-text font-display text-2xl md:text-3xl font-light mb-12">In Motion</h2>
 
           {/* Hero video */}
           <div className="mb-10">
@@ -562,9 +859,25 @@ export default function FlyWireGallery() {
           {/* Secondary videos */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
             {[
-              { id: "J2xTkMsZchs", title: "Fly Connectome", desc: "An overview of the FlyWire project and the scientific questions a complete connectome can answer." },
-              { id: "OSKunbBWAq8", title: "The BANC", desc: "The Brain And Nerve Cord connectome, extending the map beyond the brain into the fly's ventral nerve cord." },
-              { id: "RQuYaMDc1d0", title: "All FlyWire Neurons", desc: "Every one of the 139,255 neurons in the adult Drosophila brain, rendered together in motion." },
+              {
+                id: "J2xTkMsZchs",
+                title: "The FlyWire Connectome",
+                desc: "Every one of the 139,255 neurons in the adult Drosophila brain, followed by a tour of superclasses.",
+                linkLabel: "Nature, 2024",
+                linkUrl: "https://www.nature.com/articles/s41586-024-07558-y",
+              },
+              {
+                id: "OSKunbBWAq8",
+                title: "The BANC",
+                desc: "The Brain And Nerve Cord connectome, the first dataset linking the fly's brain to the body it controls.",
+                linkLabel: "Read the preprint",
+                linkUrl: "https://www.biorxiv.org/content/10.1101/2025.07.31.667571v3",
+              },
+              {
+                id: "RQuYaMDc1d0",
+                title: "Flytastic Voyage",
+                desc: "Zoom from Mala Murthy and Sebastian Seung's meeting into the brain of a fly to see how the FlyWire connectome was created.",
+              },
             ].map((v) => (
               <div key={v.id}>
                 <div className="relative w-full rounded-xl overflow-hidden bg-black" style={{ paddingBottom: "56.25%" }}>
@@ -579,6 +892,19 @@ export default function FlyWireGallery() {
                 <div className="mt-4">
                   <h3 className="font-display text-lg font-light mb-1.5">{v.title}</h3>
                   <p className="text-sm text-white/50 leading-relaxed">{v.desc}</p>
+                  {v.linkUrl && (
+                    <a
+                      href={v.linkUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-cyan-200/70 hover:text-cyan-100 transition group/link"
+                    >
+                      {v.linkLabel}
+                      <svg width="11" height="11" viewBox="0 0 14 14" fill="none" className="group-hover/link:translate-x-0.5 transition-transform">
+                        <path d="M4 10l6-6M5 4h5v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
@@ -616,7 +942,7 @@ export default function FlyWireGallery() {
         {/* ── Papers ──────────────────────────────────────────────────── */}
         <div className="mt-32 max-w-4xl mx-auto">
           <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-5">Research</p>
-          <h2 className="font-display text-2xl md:text-3xl font-light mb-10">The Science Behind It</h2>
+          <h2 className="holo-text font-display text-2xl md:text-3xl font-light mb-10">The Science Behind It</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {[
               {
@@ -735,7 +1061,188 @@ export default function FlyWireGallery() {
           />
         )}
       </AnimatePresence>
+
+      {/* Click sparkles — burst from every click on the page */}
+      {sparkles.map((s) => (
+        <span
+          key={s.id}
+          className={`click-spark ${s.color}`}
+          style={
+            {
+              left: `${s.x}px`,
+              top: `${s.y}px`,
+              "--dx": `${s.dx}px`,
+              "--dy": `${s.dy}px`,
+              "--rot": `${s.rot}deg`,
+            } as React.CSSProperties
+          }
+          aria-hidden="true"
+        />
+      ))}
+
+      {/* Sonar rings — concentric ring expanding outward from each click */}
+      {rings.map((r) => (
+        <span
+          key={r.id}
+          className="click-ring"
+          style={{ left: `${r.x}px`, top: `${r.y}px` }}
+          aria-hidden="true"
+        />
+      ))}
+
     </>
+  );
+}
+
+// ── Share Menu ───────────────────────────────────────────────────────────
+
+function ShareMenu({
+  copied,
+  setCopied,
+}: {
+  copied: boolean;
+  setCopied: (b: boolean) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const url = typeof window !== "undefined" ? window.location.href : "";
+  const text = "FlyWire Neuron Gallery — every neuron in the adult Drosophila brain, traced and connected.";
+  const subject = "FlyWire Neuron Gallery";
+  const targets = [
+    {
+      label: "X",
+      href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+      ),
+    },
+    {
+      label: "Facebook",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      icon: (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9.198 21.5h4v-8.01h3.604l.396-3.98h-4V7.5a1 1 0 0 1 1-1h3v-4h-3a5 5 0 0 0-5 5v2.01h-2l-.396 3.98h2.396z" />
+        </svg>
+      ),
+    },
+  ];
+
+  function copyLink() {
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    setOpen(false);
+  }
+
+  function shareEmail() {
+    // mailto: through `<a href>` is flaky — works reliably when triggered
+    // by direct window navigation. Also: copy the formatted message to
+    // clipboard as a fallback, so the user can paste even if no mail
+    // client is registered (silent failures otherwise).
+    const body = `${text}\n\n${url}`;
+    const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    try {
+      navigator.clipboard.writeText(`${subject}\n\n${body}`);
+    } catch {}
+    window.location.href = mailto;
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    setOpen(false);
+  }
+
+  return (
+    <div ref={wrapRef} className="fixed top-5 right-5 z-30">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-white/10 hover:border-cyan-200/40 text-[11px] uppercase tracking-[0.25em] text-white/75 hover:text-white transition"
+      >
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" className="opacity-90">
+          <path
+            d="M5 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-3M9 1h4v4M13 1 6 8"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Share
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.96 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute right-0 top-full mt-2 w-48 glass rounded-xl overflow-hidden border border-white/10 shadow-xl"
+          >
+            {targets.map((t) => {
+              const isMailto = t.href.startsWith("mailto:");
+              return (
+                <a
+                  key={t.label}
+                  href={t.href}
+                  // mailto: links must not use target="_blank" — that opens
+                  // a blank tab and never triggers the email client.
+                  {...(isMailto
+                    ? {}
+                    : { target: "_blank", rel: "noreferrer" })}
+                  className="flex items-center gap-3 px-4 py-2.5 text-[12px] text-white/75 hover:text-white hover:bg-white/[0.06] transition"
+                  onClick={() => setOpen(false)}
+                >
+                  <span className="opacity-80">{t.icon}</span>
+                  {t.label}
+                </a>
+              );
+            })}
+            <button
+              onClick={shareEmail}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-[12px] text-white/75 hover:text-white hover:bg-white/[0.06] transition border-t border-white/8"
+            >
+              <span className="opacity-80">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="M3 7l9 7 9-7" />
+                </svg>
+              </span>
+              Email
+            </button>
+            <button
+              onClick={copyLink}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-[12px] text-white/75 hover:text-white hover:bg-white/[0.06] transition border-t border-white/8"
+            >
+              <span className="opacity-80">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" />
+                  <path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
+                </svg>
+              </span>
+              {copied ? "Link copied" : "Copy link"}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 

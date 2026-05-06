@@ -117,3 +117,553 @@
 /* Presentation mode: full-screen 3D, chrome out of the way. Toggled
    from /explore via the present icon (or "p" key). */
 body.present-mode header { display: none !important; }
+
+/* ──────────────────────────────────────────────────────────────────── */
+/* HOLOGRAPHIC BIOLOGY VIBE                                             */
+/* "Oddly satisfying hologram, biologically inspired."                  */
+/* All effects are pure CSS animations (GPU-friendly) — no JS overhead. */
+/* ──────────────────────────────────────────────────────────────────── */
+
+/* Slow drifting gradient field — like volumetric light through tissue */
+@keyframes holo-bg-drift {
+  0%, 100% {
+    background-position: 0% 0%, 100% 100%, 50% 100%;
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    background-position: 30% 20%, 70% 80%, 50% 60%;
+    filter: hue-rotate(8deg);
+  }
+}
+
+.holo-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Pushed to corners + dropped to ~25% of original strength so it doesn't
+     bleed through cards and wash out the renders. Meant to be sensed,
+     not seen. */
+  background:
+    radial-gradient(ellipse 35% 25% at 0% 0%, rgba(126, 224, 255, 0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 35% 25% at 100% 100%, rgba(255, 126, 224, 0.025) 0%, transparent 70%);
+  background-size: 200% 200%;
+  animation: holo-bg-drift 32s ease-in-out infinite;
+}
+
+/* Tech-grid dot lattice — alien-architecture undertone, fades at center.
+   Adds the "PCB / synapse map" feel the user asked for without bleeding
+   into card content. */
+.holo-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(126, 224, 255, 0.10) 0.6px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, rgba(0,0,0,0.5) 50%, transparent 90%);
+          mask-image: radial-gradient(ellipse at center, black 0%, rgba(0,0,0,0.5) 50%, transparent 90%);
+}
+
+/* Faint horizontal scan lines — CRT-hologram tell, almost subliminal */
+.holo-scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(126, 224, 255, 0.012) 0px,
+      rgba(126, 224, 255, 0.012) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  mix-blend-mode: screen;
+}
+
+/* Drifting neurotransmitter particles */
+@keyframes holo-particle {
+  0% { transform: translate3d(0, 105vh, 0) scale(0.5); opacity: 0; }
+  10% { opacity: 0.55; }
+  90% { opacity: 0.55; }
+  100% { transform: translate3d(40px, -15vh, 0) scale(0.3); opacity: 0; }
+}
+.holo-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.holo-particles i {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--color-glow-cyan);
+  box-shadow: 0 0 6px var(--color-glow-cyan), 0 0 12px rgba(126, 224, 255, 0.4);
+  animation: holo-particle linear infinite;
+  will-change: transform, opacity;
+}
+
+/* ── Holographic card ───────────────────────────────────────────────
+   Layered effects: cyan rim glow + faint top-down scan-sweep + four
+   sensor-frame corner brackets that scale in. ::before is the scan
+   sweep, ::after is the corner brackets.
+*/
+@keyframes holo-card-sweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+.holo-card {
+  position: relative;
+  isolation: isolate;
+  transition: box-shadow 400ms ease, border-color 400ms ease, transform 400ms ease;
+  /* Override .glass's white tint with a near-black ink so the renders
+     pop. Cyan rim + faint backlight live in the box-shadow so they
+     don't lighten the card body. */
+  background-color: rgba(4, 6, 12, 0.78) !important;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(126, 224, 255, 0.018) 0px,
+      rgba(126, 224, 255, 0.018) 1px,
+      transparent 1px,
+      transparent 3px
+    ) !important;
+  border-color: rgba(126, 224, 255, 0.10) !important;
+  box-shadow:
+    0 0 0 1px rgba(126, 224, 255, 0.05),
+    inset 0 1px 0 rgba(126, 224, 255, 0.06);
+}
+.holo-card > * {
+  position: relative;
+  z-index: 1;
+}
+/* Top-down vertical scan-sweep removed per user feedback — the rotating
+   edge trace already carries the live-data feel without it. */
+.holo-card:hover {
+  box-shadow:
+    0 0 0 1px rgba(126, 224, 255, 0.32),
+    0 0 24px -6px rgba(126, 224, 255, 0.32),
+    inset 0 0 0 1px rgba(126, 224, 255, 0.10);
+}
+
+/* ── Holographic Panel ──────────────────────────────────────────────
+   For the lightbox + hazard modal: stronger glow than .holo-card,
+   always-on rotating edge trace, faint inner backlight. */
+.holo-panel {
+  position: relative;
+  isolation: isolate;
+  /* Border + glow toned way down so the panel reads cleanly. The
+     animated sweep does the "live" work; the static panel is just dark. */
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: none;
+}
+.holo-panel .holo-trace {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  /* Twin-tip sweep: two bright heads, 180° apart, each travelling 180°
+     of the perimeter. Bright is placed at 0° of the gradient so the
+     `from <angle>` value maps directly to where the tip lands in screen
+     space. With keyframes 45° → 225°, the tips start AND end on the
+     NE/SW corner diagonal (swapping). */
+  background:
+    conic-gradient(
+      from var(--holo-trace-angle, 45deg),
+      rgba(126, 224, 255, 1) 0deg,
+      rgba(126, 224, 255, 0.45) 14deg,
+      rgba(126, 224, 255, 0) 30deg,
+      transparent 30deg,
+      transparent 330deg,
+      rgba(126, 224, 255, 0) 330deg,
+      rgba(126, 224, 255, 0.45) 346deg,
+      rgba(126, 224, 255, 1) 360deg
+    ),
+    conic-gradient(
+      from calc(var(--holo-trace-angle, 45deg) + 180deg),
+      rgba(126, 224, 255, 1) 0deg,
+      rgba(126, 224, 255, 0.45) 14deg,
+      rgba(126, 224, 255, 0) 30deg,
+      transparent 30deg,
+      transparent 330deg,
+      rgba(126, 224, 255, 0) 330deg,
+      rgba(126, 224, 255, 0.45) 346deg,
+      rgba(126, 224, 255, 1) 360deg
+    );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  padding: 1px;
+  /* Linear timing + multi-stop fade-out keyframes give a graceful tail.
+     Tips meet at 50%, then opacity + glow taper smoothly across the
+     remaining 50%. Nothing drops to zero abruptly. */
+  animation: holo-trace-once 1500ms linear forwards;
+  z-index: 3;
+}
+@keyframes holo-trace-once {
+  0%   { --holo-trace-angle: 45deg;  opacity: 1;    filter: drop-shadow(0 0 4px rgba(126,224,255,0.55)); }
+  50%  { --holo-trace-angle: 225deg; opacity: 1;    filter: drop-shadow(0 0 10px rgba(126,224,255,0.95)); }
+  62%  { opacity: 0.85; filter: drop-shadow(0 0 9px rgba(126,224,255,0.80)); }
+  75%  { opacity: 0.55; filter: drop-shadow(0 0 7px rgba(126,224,255,0.55)); }
+  88%  { opacity: 0.22; filter: drop-shadow(0 0 5px rgba(126,224,255,0.28)); }
+  100% { --holo-trace-angle: 225deg; opacity: 0;    filter: drop-shadow(0 0 0px rgba(126,224,255,0)); }
+}
+
+/* Companion glow on the panel — same multi-stop curve, no harsh edges. */
+.holo-panel {
+  animation: holo-panel-online 1500ms linear forwards;
+}
+@keyframes holo-panel-online {
+  0%   { box-shadow: 0 0 0 1px rgba(126,224,255,0.04); }
+  50%  { box-shadow: 0 0 0 1px rgba(126,224,255,0.20), inset 0 0 80px -22px rgba(126,224,255,0.14); }
+  62%  { box-shadow: 0 0 0 1px rgba(126,224,255,0.14), inset 0 0 60px -22px rgba(126,224,255,0.10); }
+  75%  { box-shadow: 0 0 0 1px rgba(126,224,255,0.08), inset 0 0 40px -22px rgba(126,224,255,0.06); }
+  100% { box-shadow: 0 0 0 1px rgba(126,224,255,0), inset 0 0 0 0 rgba(126,224,255,0); }
+}
+
+/* HUD accent: small cyan vertical pulse line, used as a section accent
+   to the left of group labels in the lightbox sidebar */
+.holo-tick {
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  vertical-align: middle;
+  margin-right: 8px;
+  background: var(--color-glow-cyan);
+  box-shadow: 0 0 6px var(--color-glow-cyan), 0 0 12px rgba(126,224,255,0.6);
+  animation: holo-pulse 2.4s ease-in-out infinite;
+}
+
+/* Animated underline that draws itself once when its parent enters view —
+   used under lightbox titles for a "system online" feel */
+@keyframes holo-underline-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.holo-underline {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px;
+}
+.holo-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(126, 224, 255, 0.85) 0%,
+    rgba(126, 224, 255, 0.4) 60%,
+    transparent 100%
+  );
+  transform-origin: left center;
+  animation: holo-underline-draw 900ms cubic-bezier(0.16, 1, 0.3, 1) 200ms backwards;
+  filter: drop-shadow(0 0 3px rgba(126,224,255,0.6));
+}
+
+/* ── Edge data-flow ─────────────────────────────────────────────────
+   Conic gradient + mask trick. A bright cyan arc rotates around the
+   card's perimeter when hovered, drawn only on the 1-px ring via a
+   matching mask. Looks like a packet of data tracing the boundary.
+*/
+@property --holo-trace-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes holo-trace-spin {
+  to { --holo-trace-angle: 360deg; }
+}
+.holo-card .holo-trace {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms ease;
+  /* The gradient: a bright cyan arc covering ~25% of the rotation,
+     transparent for the rest. The whole thing rotates. */
+  background: conic-gradient(
+    from var(--holo-trace-angle),
+    transparent 0deg,
+    transparent 270deg,
+    rgba(126, 224, 255, 0.0) 290deg,
+    rgba(126, 224, 255, 0.9) 350deg,
+    rgba(126, 224, 255, 0.0) 360deg
+  );
+  /* Mask: keep only the 1-px outer ring */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  padding: 1px;
+  animation: holo-trace-spin 3.4s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(126,224,255,0.7));
+  z-index: 3;
+}
+.holo-card:hover .holo-trace { opacity: 1; }
+
+/* Holographic shimmer for big headings — subtle, never aggressive */
+@keyframes holo-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.holo-text {
+  background: linear-gradient(
+    100deg,
+    rgb(245, 245, 250) 0%,
+    rgb(195, 235, 255) 35%,
+    rgb(245, 245, 250) 70%,
+    rgb(255, 220, 240) 100%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: holo-shimmer 9s ease-in-out infinite;
+}
+
+/* Subtle breathing pulse — for accent dots, hazard chips, etc. */
+@keyframes holo-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+.holo-pulse { animation: holo-pulse 2.4s ease-in-out infinite; }
+
+/* ── Click-stars: a celebratory sparkle burst on every click ────────
+   Inspired by jh3y on CodePen. Each burst spawns 10-12 small stars
+   that radiate outward, rotate, and fade. Pure CSS animation per
+   particle so React only places them at the click point. */
+@keyframes click-spark {
+  0%   { transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.4); opacity: 0; }
+  12%  { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(calc(var(--rot) + 220deg)) scale(0.1); opacity: 0; }
+}
+.click-spark {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #fff 0%, var(--color-glow-cyan) 50%, transparent 80%);
+  clip-path: polygon(
+    50% 0%, 60% 35%, 100% 35%, 68% 57%, 79% 100%,
+    50% 70%, 21% 100%, 32% 57%, 0% 35%, 40% 35%
+  );
+  animation: click-spark 750ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  filter: drop-shadow(0 0 6px var(--color-glow-cyan));
+}
+.click-spark.magenta {
+  background: radial-gradient(circle, #fff 0%, var(--color-glow-magenta) 50%, transparent 80%);
+  filter: drop-shadow(0 0 6px var(--color-glow-magenta));
+}
+.click-spark.warm {
+  background: radial-gradient(circle, #fff 0%, var(--color-glow-warm) 50%, transparent 80%);
+  filter: drop-shadow(0 0 6px var(--color-glow-warm));
+}
+
+/* ── Click sonar ring ──────────────────────────────────────────────
+   Concentric ring expands outward from the click point. Pairs with the
+   star-burst already in place — together they read as a satisfying
+   reticle confirm (Halo / Apex / Destiny). */
+@keyframes click-ring {
+  0%   { transform: translate(-50%, -50%) scale(0.05); opacity: 0.85; border-width: 2px; }
+  60%  { opacity: 0.45; border-width: 1px; }
+  100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; border-width: 1px; }
+}
+.click-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  width: 90px;
+  height: 90px;
+  border: 2px solid rgba(126, 224, 255, 0.9);
+  border-radius: 50%;
+  animation: click-ring 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  filter: drop-shadow(0 0 6px rgba(126, 224, 255, 0.6));
+}
+
+/* ── HUD classification chip ───────────────────────────────────────
+   Small monospace tag in the top-left of each gallery card. No pulse —
+   static tactical readout. */
+.holo-chip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-family: ui-monospace, "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: rgba(126, 224, 255, 0.7);
+  background: rgba(4, 6, 12, 0.55);
+  border: 1px solid rgba(126, 224, 255, 0.22);
+  padding: 2px 6px;
+  border-radius: 3px;
+  z-index: 4;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ── Scroll-position HUD counter ───────────────────────────────────
+   Fixed top-left "01 / 13" index, mirrors the share button. */
+.holo-counter {
+  font-family: ui-monospace, "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.55);
+}
+.holo-counter b {
+  color: rgba(126, 224, 255, 0.95);
+  font-weight: 500;
+  margin-right: 2px;
+}
+
+/* ── Section boot-in label ────────────────────────────────────────
+   Brief "[ INITIALIZED ]" tag next to a section heading the first
+   time it scrolls into view. */
+.holo-init {
+  display: inline-block;
+  font-family: ui-monospace, "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: rgba(126, 224, 255, 0.85);
+  margin-left: 14px;
+  vertical-align: middle;
+  opacity: 0;
+  animation: holo-init-fade 2000ms ease-out forwards;
+  text-shadow: 0 0 6px rgba(126, 224, 255, 0.5);
+}
+@keyframes holo-init-fade {
+  0%   { opacity: 0; transform: translateX(-6px); }
+  18%  { opacity: 1; transform: translateX(0); }
+  72%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(0); }
+}
+
+/* ── Periodic holographic flicker ─────────────────────────────────
+   Subtle brightness blip on a random card every ~25s. Suggests the
+   whole UI is being projected. Class added/removed via JS. */
+@keyframes holo-flicker {
+  0%   { filter: brightness(1) saturate(1); }
+  8%   { filter: brightness(1.18) saturate(1.15); }
+  14%  { filter: brightness(0.92); }
+  22%  { filter: brightness(1.10); }
+  30%  { filter: brightness(0.96); }
+  100% { filter: brightness(1) saturate(1); }
+}
+.holo-flicker { animation: holo-flicker 700ms ease-in-out; }
+
+/* ── Scan-wipe image reveal ──────────────────────────────────────
+   When a card image enters the viewport, a thin cyan line passes
+   top-to-bottom across it. Subtle; ~700ms. Class added by IO. */
+@keyframes scan-wipe {
+  0%   { transform: translateY(-110%); opacity: 1; }
+  100% { transform: translateY(110%); opacity: 0; }
+}
+.scan-wipe {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+.scan-wipe::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(126, 224, 255, 0.0) 20%,
+    rgba(126, 224, 255, 0.7) 50%,
+    rgba(126, 224, 255, 0.0) 80%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 4px rgba(126, 224, 255, 0.7));
+  animation: scan-wipe 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Glitch transition ───────────────────────────────────────────
+   Brief RGB-split + scanlines flash. Triggered when navigating to a
+   section anchor. */
+@keyframes glitch-flash {
+  0%   { opacity: 0; }
+  10%  { opacity: 1; transform: translateX(-2px); }
+  25%  { opacity: 0.6; transform: translateX(2px); }
+  40%  { opacity: 0.85; transform: translateX(-1px); }
+  100% { opacity: 0; transform: translateX(0); }
+}
+.glitch-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(126,224,255,0.06) 0px, rgba(126,224,255,0.06) 1px, transparent 1px, transparent 3px),
+    linear-gradient(120deg, rgba(255, 64, 200, 0.05), rgba(64, 224, 255, 0.05));
+  mix-blend-mode: screen;
+  animation: glitch-flash 320ms ease-out forwards;
+}
+
+/* ── Cooldown arc on Share button ────────────────────────────────
+   Thin SVG arc that traces around the share pill when toggled. */
+@keyframes cooldown-arc-draw {
+  from { stroke-dashoffset: 200; }
+  to   { stroke-dashoffset: 0; }
+}
+.cooldown-arc circle {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 0;
+  animation: cooldown-arc-draw 480ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Section divider — scan-line accent above each gallery group heading */
+.holo-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(126, 224, 255, 0.4) 25%,
+    rgba(126, 224, 255, 0.4) 75%,
+    transparent 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+.holo-divider::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(126, 224, 255, 0.9) 50%,
+    transparent 100%
+  );
+  animation: holo-divider-sweep 6s linear infinite;
+}
+@keyframes holo-divider-sweep {
+  0% { left: -30%; }
+  100% { left: 100%; }
+}

@@ -8,6 +8,9 @@
   credit?: string;
   // Optional cell count, displayed as a small subtitle on the card.
   neuronCount?: number;
+  // Optional Tailwind aspect class, e.g. "aspect-[2/3]" for portrait posters
+  // or "aspect-video" for 16:9. Defaults to aspect-video when omitted.
+  aspectClass?: string;
 }
 
 export const FLYWIRE_GROUPS = [
@@ -55,7 +58,7 @@ export const FLYWIRE_GROUP_BLURBS: Record<string, string> = {
   "The Superclasses":
     "The highest-level view of the FlyWire connectome, all 139,255 neurons organized into their fundamental functional classes, from sensory inputs and motor outputs to the central circuits that tie everything together.",
   "Brain-Wide Connectivity":
-    "Inputs and outputs of major neuropils across the Drosophila brain, revealing the large-scale architecture of sensation, navigation, and motor control.",
+    "Inputs and outputs of some of the 78 neuropils from the fruit fly brain, revealing the large scale architecture of sensation, navigation, and motor control.",
   "The Mushroom Body":
     "The insect learning and memory center, dissected into its component cell types, Kenyon Cells, output neurons, and the teaching inputs that write new memories.",
   "Sex & Courtship Circuits":
@@ -648,6 +651,7 @@ export const flyWireImages: FlyWireImage[] = [
     group: "Infographics & Posters",
     credit:
       "Designed by Amy Sterling, using her own renders alongside renders by Tyler Sloan",
+    aspectClass: "aspect-[2/3]",
   },
   {
     filename: "inf_poster-wide.png",
@@ -665,20 +669,13 @@ export const flyWireImages: FlyWireImage[] = [
       "An illustrated guide to fly neuron anatomy and the FlyWire project, created for broad scientific communication. The infographic brings together key facts about the connectome, scale, method, and significance, in a format accessible to scientists and general audiences alike.",
     group: "Infographics & Posters",
     credit: "Created by Amy Sterling",
-  },
-  {
-    filename: "inf_data-lens.jpg",
-    title: "The FlyWire Data Lens",
-    caption:
-      "A print-format visualization exploring the FlyWire dataset through a scientific lens. Designed at 8×10 for publication and display, it contextualizes the connectome within the broader landscape of neuroscience data, positioning the fly brain map as a reference point for understanding neural circuit complexity.",
-    group: "Infographics & Posters",
-    credit: "Created by Amy Sterling",
+    aspectClass: "aspect-[2/3]",
   },
   {
     filename: "inf_fly-scifi.jpg",
     title: "Fly Brain: Science Fiction Aesthetic",
     caption:
-      "A stylized interpretation of the fly connectome using a science-fiction visual language, dramatic lighting, deep space backgrounds, and the fly brain rendered as a glowing cosmic object. A reminder that real biological structures can be stranger and more beautiful than anything invented.",
+      "FlyWire is the complete wiring diagram of the adult Drosophila brain: every neuron, every synapse, layered with cell-type annotations from the global fly community and the full connectivity matrix between them. The combined dataset turns the brain into a queryable circuit, where questions about how neurons produce behavior become tractable.",
     group: "Infographics & Posters",
     credit: "Created by Amy Sterling",
   },
@@ -686,7 +683,7 @@ export const flyWireImages: FlyWireImage[] = [
     filename: "inf_perception-concepts.png",
     title: "Perception Concepts",
     caption:
-      "An illustrative breakdown of how the fly visual system encodes perception, from raw photoreceptor signals to the high-level feature detection performed by lobula columnar and visual projection neurons. A conceptual map of how a brain turns light into meaning.",
+      "Concept composite render for the FlyWire cover of Nature. Major regions of the connectome, visual projection, sensory, optic, and motor, annotated on a single canvas.",
     group: "Infographics & Posters",
     credit:
       "Created by Perception Studios using renders by Tyler Sloan. Produced by Amy Sterling",
@@ -959,14 +956,10 @@ export const INTERACTIVE_VIEWS: InteractiveView[] = [
       ],
     },
   },
-  {
-    thumbnail: "ocellar.png",
-    title: "Ocellar Neurons",
-    description:
-      "Every neuron with arbors in the ocellar ganglion, the small dorsal input from the three simple eyes (ocelli) that detect ambient light level and help stabilize flight.",
-    codexUrl: "https://codex.flywire.ai/app/search?filter_string=ocellar",
-    hazard: { cellCount: 336 },
-  },
+  // Ocellar Neurons (336 cells) was here but pulled for now — too many to
+  // render inline cleanly. Add back later once we figure out a sensible
+  // subset (e.g. just the OCG projection neurons, n=20) or the hazard-
+  // confirm flow gets richer.
 ];
 
 // ── Media picks ──────────────────────────────────────────────────────────
