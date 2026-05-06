@@ -450,6 +450,17 @@ export default function FlyWireGallery() {
   const longPressTimerRef = useRef<number | null>(null);
   const longPressFiredRef = useRef(false);
 
+  // Dismiss the rail tooltip the moment the user scrolls — without this, a
+  // tap that latched the tooltip (or a touch that started as a press and
+  // turned into a scroll) leaves the label hanging on screen long after the
+  // user has moved on.
+  useEffect(() => {
+    if (tooltipIdx === null) return;
+    const dismiss = () => setTooltipIdx(null);
+    window.addEventListener("scroll", dismiss, { passive: true });
+    return () => window.removeEventListener("scroll", dismiss);
+  }, [tooltipIdx]);
+
   // Periodic holographic flicker — every ~25s, pick a random card and
   // briefly flicker its brightness. Suggests the whole UI is projected.
   useEffect(() => {
@@ -619,6 +630,14 @@ export default function FlyWireGallery() {
                     setTooltipIdx(i);
                     longPressFiredRef.current = true;
                   }, 350);
+                }}
+                onTouchMove={() => {
+                  // Touch turned into a scroll — abandon the long-press so
+                  // the tooltip never appears for a swipe.
+                  if (longPressTimerRef.current) {
+                    window.clearTimeout(longPressTimerRef.current);
+                    longPressTimerRef.current = null;
+                  }
                 }}
                 onTouchEnd={() => {
                   if (longPressTimerRef.current) {
