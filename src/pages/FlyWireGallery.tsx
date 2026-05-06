@@ -10,6 +10,11 @@ import {
   type FlyWireImage,
   type InteractiveView,
 } from "../data/flywire";
+import {
+  referencesFor,
+  viewReferencesFor,
+  type Reference,
+} from "../data/flywireReferences";
 import NeuropilBrain from "../components/NeuropilBrain";
 import CircuitViewer from "../components/CircuitViewer";
 import { FILENAME_TO_NEUROPILS, NEUROPILS } from "../data/neuropilMap";
@@ -51,6 +56,56 @@ const IMAGE_BY_SLUG = new Map<string, FlyWireImage>();
     SLUG_BY_FILENAME.set(img.filename, slug);
     IMAGE_BY_SLUG.set(slug, img);
   }
+}
+
+// ── Reference list (lightbox sidebar + interactive views) ────────────────
+
+function ReferenceList({ refs }: { refs: Reference[] }) {
+  if (refs.length === 0) return null;
+  return (
+    <div className="mt-6 pt-5 border-t border-white/10">
+      <p className="text-[10px] uppercase tracking-[0.35em] text-white/40 mb-3">References</p>
+
+      {/* Mobile: compact numbered pill row */}
+      <ul className="flex flex-wrap gap-2 sm:hidden">
+        {refs.map((r, i) => (
+          <li key={r.id}>
+            <a
+              href={r.url}
+              target="_blank"
+              rel="noreferrer"
+              title={`${r.authors} ${r.year}, ${r.journal} — ${r.title}`}
+              className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded font-mono text-[11px] tracking-tight text-cyan-300/65 bg-cyan-300/10 hover:bg-cyan-300/20 hover:text-cyan-300/95 transition"
+            >
+              {i + 1}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      {/* Desktop: full bibliographic list */}
+      <ul className="hidden sm:block space-y-1.5">
+        {refs.map((r) => (
+          <li key={r.id}>
+            <a
+              href={r.url}
+              target="_blank"
+              rel="noreferrer"
+              title={r.title}
+              className="group/ref flex items-baseline gap-2 text-[11px] leading-snug text-white/45 hover:text-white/85 transition"
+            >
+              <span className="font-mono text-cyan-300/55 group-hover/ref:text-cyan-300/90 shrink-0 tracking-tight">
+                {r.id}
+              </span>
+              <span className="truncate">
+                {r.authors} {r.year}, <em>{r.journal}</em>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 // ── Lightbox ─────────────────────────────────────────────────────────────
@@ -140,6 +195,7 @@ function Lightbox({
                 {creditFor(image)}
               </p>
             )}
+            <ReferenceList refs={referencesFor(image.title)} />
             <button
               onClick={copyLink}
               className="mt-5 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-white/45 hover:text-white/80 transition group"
@@ -695,12 +751,12 @@ export default function FlyWireGallery() {
 
         {/* ── Overview / About the connectome ──────────────────── */}
         <section className="px-6 pt-24 pb-4">
-          <div className="max-w-3xl">
+          <div className="max-w-7xl mx-auto">
             <p className="text-[11px] uppercase tracking-[0.4em] text-white/35 mb-5">Overview</p>
-            <h2 className="holo-text font-display text-2xl md:text-3xl font-light mb-6">
+            <h2 className="holo-text font-display text-2xl md:text-3xl font-light mb-6 max-w-3xl">
               What is the FlyWire Connectome?
             </h2>
-            <p className="text-sm md:text-[15px] text-white/55 font-light leading-relaxed">
+            <p className="text-sm md:text-[15px] text-white/55 font-light leading-relaxed max-w-3xl">
               The FlyWire connectome was published in a special edition of <em>Nature</em>{" "}
               in October 2024, presenting the first complete synapse-resolution wiring diagram
               of a centralized brain. It contains ~140,000 neurons and ~50 million synaptic
@@ -926,9 +982,30 @@ export default function FlyWireGallery() {
                               </span>
                             )}
                           </div>
-                          <p className="text-[12.5px] text-white/55 leading-relaxed mb-4 flex-1">
+                          <p className="text-[12.5px] text-white/55 leading-relaxed mb-3 flex-1">
                             {view.description}
                           </p>
+                          {(() => {
+                            const refs = viewReferencesFor(view.title);
+                            if (refs.length === 0) return null;
+                            return (
+                              <div className="flex items-center flex-wrap gap-1.5 mb-4">
+                                <span className="text-[9px] uppercase tracking-[0.25em] text-white/30">Refs</span>
+                                {refs.map((r) => (
+                                  <a
+                                    key={r.id}
+                                    href={r.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title={`${r.authors} ${r.year} — ${r.title}`}
+                                    className="text-[10px] font-mono tracking-tight text-cyan-300/55 hover:text-cyan-300/90 px-1.5 py-0.5 rounded bg-cyan-300/5 hover:bg-cyan-300/15 transition"
+                                  >
+                                    {r.id}
+                                  </a>
+                                ))}
+                              </div>
+                            );
+                          })()}
                           {view.hazard ? (
                             <button
                               onClick={() => setHazardView(view)}
@@ -1149,11 +1226,11 @@ export default function FlyWireGallery() {
                 rel="noreferrer"
                 className="group glass rounded-xl p-5 hover:bg-white/[0.07] hover:ring-1 hover:ring-white/15 transition-all duration-300 flex flex-col gap-3"
               >
-                <div className="flex items-center justify-center h-16 -mx-2 -mt-1 mb-1">
+                <div className="flex items-center justify-center h-36 -mx-3 -mt-3 mb-2 rounded-lg overflow-hidden">
                   <img
                     src="https://codex.flywire.ai/asset/academy/title.png"
                     alt="FlyWire Academy"
-                    className="max-h-full w-auto object-contain opacity-90 group-hover:opacity-100 transition"
+                    className="max-h-full max-w-full object-contain group-hover:scale-[1.03] transition-transform duration-300"
                   />
                 </div>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-white/35">Education</p>
