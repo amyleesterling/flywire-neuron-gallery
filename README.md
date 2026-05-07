@@ -1,6 +1,6 @@
 # FlyWire Neuron Gallery
 
-Connectome renders by **Tyler Sloan** and **Amy Sterling** for [FlyWire](https://flywire.ai). Real *Drosophila* brain reconstructions, mapped synapse by synapse.
+New [FlyWire](https://flywire.ai) neuron gallery. Real *Drosophila* brain reconstructions, mapped synapse by synapse, published in Nature, 8 times.
 
 **Live:** [amyleesterling.github.io/flywire-neuron-gallery/](https://amyleesterling.github.io/flywire-neuron-gallery/)
 
