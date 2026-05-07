@@ -701,13 +701,15 @@ export default function FlyWireGallery() {
 
         {/* ── Hero video banner ─────────────────────────────────────── */}
         <div className="relative w-full overflow-hidden" style={{ height: "100svh" }}>
-          {/* AV1 (~53 MB) for modern browsers; H.264 (~90 MB) fallback for the rest. */}
+          {/* AV1 (~13 MB, 0:43 loop) for modern browsers; H.264 (~33 MB) fallback.
+              `preload="metadata"` keeps Lighthouse happy — the browser only
+              fetches enough to start playback rather than buffering the whole file. */}
           <video
             autoPlay
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             className="absolute inset-0 w-full h-full object-cover"
           >
             <source src={`${import.meta.env.BASE_URL}flywire/flywire-hero.av1.mp4`} type='video/mp4; codecs="av01.0.08M.08"' />
