@@ -302,6 +302,93 @@ function ImageCard({
   );
 }
 
+// ── Hero video ───────────────────────────────────────────────────────────
+//
+// The hero loops at ~43s, AV1 13 MB / H.264 33 MB. To keep Lighthouse happy
+// (and to be kind to slow connections), we don't load the video until AFTER
+// `window.load` + a short beat — `preload="none"` ensures zero bytes are
+// fetched up front. A static AVIF poster fills the hero area instantly so
+// there's no black frame during the delay. Save-Data and prefers-reduced-
+// motion users see only the poster, no video.
+
+function HeroVideo({ children }: { children?: React.ReactNode }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    const saveData = conn?.saveData === true;
+    const slow = conn?.effectiveType === "slow-2g" || conn?.effectiveType === "2g";
+    if (reduced || saveData || slow) return;
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const start = () => {
+      timer = setTimeout(() => {
+        video.preload = "auto";
+        video.load();
+        const p = video.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      }, 1500);
+    };
+
+    if (document.readyState === "complete") {
+      start();
+    } else {
+      window.addEventListener("load", start, { once: true });
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener("load", start);
+    };
+  }, []);
+
+  return (
+    <div className="relative w-full overflow-hidden" style={{ height: "100svh" }}>
+      <video
+        ref={videoRef}
+        muted
+        loop
+        playsInline
+        preload="none"
+        poster={`${import.meta.env.BASE_URL}flywire/flywire-hero-poster.avif`}
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src={`${import.meta.env.BASE_URL}flywire/flywire-hero.av1.mp4`} type='video/mp4; codecs="av01.0.08M.08"' />
+        <source src={`${import.meta.env.BASE_URL}flywire/flywire-poster.mp4`} type="video/mp4" />
+      </video>
+      {/* Dark vignette — edges + bottom fade into page */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, transparent 30%, rgba(4,6,12,0.55) 100%)",
+        }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 pointer-events-none"
+        style={{
+          height: "45%",
+          background:
+            "linear-gradient(to bottom, transparent 0%, rgba(4,6,12,0.85) 70%, rgba(4,6,12,1) 100%)",
+        }}
+      />
+      {/* Top fade so nav stays readable */}
+      <div
+        className="absolute inset-x-0 top-0 pointer-events-none"
+        style={{
+          height: "160px",
+          background:
+            "linear-gradient(to bottom, rgba(4,6,12,0.7) 0%, transparent 100%)",
+        }}
+      />
+      {children}
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────
 
 export default function FlyWireGallery() {
@@ -700,47 +787,7 @@ export default function FlyWireGallery() {
       <main className="relative z-10 min-h-screen pb-32">
 
         {/* ── Hero video banner ─────────────────────────────────────── */}
-        <div className="relative w-full overflow-hidden" style={{ height: "100svh" }}>
-          {/* AV1 (~13 MB, 0:43 loop) for modern browsers; H.264 (~33 MB) fallback.
-              `preload="metadata"` keeps Lighthouse happy — the browser only
-              fetches enough to start playback rather than buffering the whole file. */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src={`${import.meta.env.BASE_URL}flywire/flywire-hero.av1.mp4`} type='video/mp4; codecs="av01.0.08M.08"' />
-            <source src={`${import.meta.env.BASE_URL}flywire/flywire-poster.mp4`} type="video/mp4" />
-          </video>
-          {/* Dark vignette — edges + bottom fade into page */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse at center, transparent 30%, rgba(4,6,12,0.55) 100%)",
-            }}
-          />
-          <div
-            className="absolute inset-x-0 bottom-0 pointer-events-none"
-            style={{
-              height: "45%",
-              background:
-                "linear-gradient(to bottom, transparent 0%, rgba(4,6,12,0.85) 70%, rgba(4,6,12,1) 100%)",
-            }}
-          />
-          {/* Top fade so nav stays readable */}
-          <div
-            className="absolute inset-x-0 top-0 pointer-events-none"
-            style={{
-              height: "160px",
-              background:
-                "linear-gradient(to bottom, rgba(4,6,12,0.7) 0%, transparent 100%)",
-            }}
-          />
-
+        <HeroVideo>
           {/* Title overlaid on the video */}
           <motion.div
             initial={{ opacity: 0, y: 18 }}
@@ -778,7 +825,7 @@ export default function FlyWireGallery() {
               sic parvis magna
             </p>
           </motion.div>
-        </div>
+        </HeroVideo>
 
         {/* ── Overview / About the connectome ──────────────────── */}
         <section className="px-6 pt-24 pb-4">
